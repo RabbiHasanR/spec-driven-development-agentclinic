@@ -1,5 +1,5 @@
 import { SITE } from "@/lib/site";
-import styles from "./layout.module.css";
+import styles from "@/styles/components/layout.module.css";
 
 export function Footer() {
   return (

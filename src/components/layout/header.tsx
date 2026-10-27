@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { SITE } from "@/lib/site";
-import styles from "./layout.module.css";
+import styles from "@/styles/components/layout.module.css";
 
 export function Header() {
   return (

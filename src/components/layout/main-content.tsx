@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import styles from "./layout.module.css";
+import styles from "@/styles/components/layout.module.css";
 
 export function MainContent({ children }: { children: ReactNode }) {
   return (
