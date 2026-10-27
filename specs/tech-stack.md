@@ -27,14 +27,23 @@ Why Next.js:
 | ----------- | --------------------------------------- |
 | Language    | TypeScript (server-side, end to end)    |
 | Framework   | Next.js (App Router) on Node.js         |
-| UI          | React (via Next.js) + CSS/Tailwind      |
+| UI          | React (via Next.js) + Tailwind CSS      |
 | Backend     | Next.js Route Handlers / Server Actions |
 | Data access | TypeScript ORM (e.g. Prisma or Drizzle) |
 | Database    | TBD — chosen in a later phase           |
+| Lint/format | ESLint (Next.js config) + Prettier      |
+| Tests       | Vitest + React Testing Library (jsdom)  |
+
+## Decided in Phase 0
+
+- **CSS:** Tailwind CSS — fast to build an attractive UI (Steve).
+- **Lint/format:** ESLint with `eslint-config-next`, Prettier for formatting,
+  `eslint-config-prettier` to avoid rule conflicts.
+- **Tests:** Vitest + React Testing Library — fast and TypeScript-native.
 
 ## Deferred decisions
 
-- Specific CSS/component approach (Tailwind vs. alternatives).
+- Component library (if any) on top of Tailwind.
 - ORM choice (Prisma vs. Drizzle).
 - Database engine.
 - Hosting/deploy target.
