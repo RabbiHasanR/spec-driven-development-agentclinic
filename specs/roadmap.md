@@ -2,6 +2,8 @@
 
 High-level implementation order. Phases are **vertical slices**: each ships one
 usable, demoable piece end to end (data → API → UI). Keep every phase small.
+Every phase follows the directory and naming rules in
+[tech-stack.md → Project conventions](tech-stack.md#project-conventions).
 
 ## Phase 0 — Project skeleton
 

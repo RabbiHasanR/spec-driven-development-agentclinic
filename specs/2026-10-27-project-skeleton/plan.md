@@ -52,11 +52,25 @@
    - `Footer` — short footer line.
 4. Style the layout with a CSS Module, `layout.module.css`, imported by the layout
    components (Next.js bundles it and emits the `<link>` tag). Shared color tokens
-   live as CSS variables in `src/app/globals.css`.
+   live as CSS variables in the global stylesheet. (Both moved to `src/styles/` in §8.)
 5. Add `src/lib/site.ts` for shared site constants (name, tagline, description).
 6. Render `MainLayout` from the route group layout `src/app/(site)/layout.tsx`;
    the root `src/app/layout.tsx` keeps only `<html>`, `<body>`, and global CSS.
    (Later groups, e.g. the Phase 4 dashboard, can use a different layout.)
 7. Add tests for `MainLayout` (banner, main, contentinfo landmarks) and update the
-   home page test.
+   home page test. (Moved to `tests/` in §8.)
 8. Update `README.md` project layout.
+
+## 8. Centralize tests and styles
+
+1. Move all tests into a top-level `tests/` directory that mirrors `src/`:
+   - `tests/components/layout/main-layout.test.tsx`
+   - `tests/views/home/home-page.test.tsx`
+   - `vitest.setup.ts` → `tests/setup.ts`
+2. Restrict Vitest to `tests/**/*.test.{ts,tsx}`; tests import source via `@/*`.
+3. Move all CSS into `src/styles/`, imported from code (never linked from `public/`):
+   - `src/app/globals.css` → `src/styles/globals.css` (Tailwind + color tokens)
+   - `src/components/layout/layout.module.css` →
+     `src/styles/components/layout.module.css`
+4. Record these conventions in `specs/tech-stack.md` so later phases follow them.
+5. Update `README.md` project layout.

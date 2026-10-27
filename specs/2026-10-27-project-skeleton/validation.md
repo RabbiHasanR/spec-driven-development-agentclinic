@@ -27,6 +27,8 @@ Phase 0 is mergeable when **all** of the following pass on a clean checkout
 ## Repo hygiene
 
 - `src/index.ts` and the old `tsc` build script are gone.
+- All tests live under `tests/`; no `*.test.*` files under `src/`.
+- All CSS lives under `src/styles/`; no `.css` files elsewhere in `src/`.
 - No build output (`.next/`) or `.env*` files committed.
 - `README.md` documents setup and scripts.
 - `specs/tech-stack.md` reflects the decisions made in this phase.

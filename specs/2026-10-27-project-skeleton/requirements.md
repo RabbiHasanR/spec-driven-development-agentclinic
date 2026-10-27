@@ -17,8 +17,10 @@ In scope:
   features (ailments, therapies, booking), styled with Tailwind.
 - **Tailwind CSS** for styling.
 - **ESLint** (Next.js config) + **Prettier** for lint/format.
-- **Vitest** test runner with smoke tests for the home page and main layout.
+- **Vitest** test runner with smoke tests for the home page and main layout, in a
+  centralized `tests/` directory.
 - Main layout (`Header`, `MainContent`, `Footer`) styled with a CSS Module.
+- All CSS centralized in `src/styles/`.
 - Directory structure: `app/` for routing, `views/` for pages, `components/` for
   shared UI, `lib/` for shared constants.
 
@@ -45,6 +47,8 @@ Out of scope:
 | Existing scaffold | Replace `src/index.ts` and `tsc` script        | Superseded by Next.js `next build`                              |
 | Page components   | `src/views/`, thin routes in `src/app/(site)/` | Routing stays separate from UI; `pages/` is reserved by Next.js |
 | Layout styling    | CSS Module (`layout.module.css`)               | Scoped class names; bundled and linked by Next.js               |
+| Test location     | Top-level `tests/` mirroring `src/`            | One place for all tests; path shows what each test covers       |
+| CSS location      | `src/styles/`, imported (not `public/`)        | One place for all CSS; still bundled, scoped, and cache-hashed  |
 
 ## Constraints
 
