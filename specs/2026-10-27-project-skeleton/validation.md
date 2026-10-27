@@ -5,12 +5,12 @@ Phase 0 is mergeable when **all** of the following pass on a clean checkout
 
 ## Automated checks
 
-| Check             | Command                | Pass criteria                         |
-| ----------------- | ---------------------- | ------------------------------------- |
-| Production build  | `npm run build`        | Exits 0, no type errors               |
-| Lint              | `npm run lint`         | Exits 0, no errors or warnings        |
-| Formatting        | `npm run format:check` | Exits 0                               |
-| Tests             | `npm test`             | Home page smoke test passes           |
+| Check            | Command                | Pass criteria                  |
+| ---------------- | ---------------------- | ------------------------------ |
+| Production build | `npm run build`        | Exits 0, no type errors        |
+| Lint             | `npm run lint`         | Exits 0, no errors or warnings |
+| Formatting       | `npm run format:check` | Exits 0                        |
+| Tests            | `npm test`             | Home page smoke test passes    |
 
 ## Manual check
 

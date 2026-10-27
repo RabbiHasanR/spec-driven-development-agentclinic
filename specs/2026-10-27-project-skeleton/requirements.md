@@ -29,16 +29,16 @@ Out of scope:
 
 ## Decisions
 
-| Decision          | Choice                                   | Why                                                          |
-| ----------------- | ---------------------------------------- | ------------------------------------------------------------ |
-| Scaffold method   | `create-next-app` in place               | Standard, well-supported config; fastest path (Mary)         |
-| Router            | App Router                               | Committed in tech-stack.md                                   |
-| Source layout     | `src/app/`                               | Reuses existing `src/` dir; keeps config files at root       |
-| Home page         | Static, minimal, no links                | Proves the stack end to end without pre-building Phase 1     |
-| CSS               | Tailwind CSS                             | Resolves deferred CSS decision; quick attractive UI (Steve)  |
-| Lint / format     | ESLint (next config) + Prettier          | Consistent code; `eslint-config-prettier` avoids conflicts   |
-| Tests             | Vitest + React Testing Library           | Fast, TS-native, works with React components                 |
-| Existing scaffold | Replace `src/index.ts` and `tsc` script  | Superseded by Next.js `next build`                           |
+| Decision          | Choice                                  | Why                                                         |
+| ----------------- | --------------------------------------- | ----------------------------------------------------------- |
+| Scaffold method   | `create-next-app` in place              | Standard, well-supported config; fastest path (Mary)        |
+| Router            | App Router                              | Committed in tech-stack.md                                  |
+| Source layout     | `src/app/`                              | Reuses existing `src/` dir; keeps config files at root      |
+| Home page         | Static, minimal, no links               | Proves the stack end to end without pre-building Phase 1    |
+| CSS               | Tailwind CSS                            | Resolves deferred CSS decision; quick attractive UI (Steve) |
+| Lint / format     | ESLint (next config) + Prettier         | Consistent code; `eslint-config-prettier` avoids conflicts  |
+| Tests             | Vitest + React Testing Library          | Fast, TS-native, works with React components                |
+| Existing scaffold | Replace `src/index.ts` and `tsc` script | Superseded by Next.js `next build`                          |
 
 ## Constraints
 
