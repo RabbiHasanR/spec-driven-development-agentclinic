@@ -1,1 +1,27 @@
 @import "tailwindcss";
+
+/* Design tokens shared by CSS Modules (which can't declare :root themselves). */
+:root {
+  --site-bg: #f0fdfa;
+  --site-surface: #ffffff;
+  --site-text: #1e293b;
+  --site-muted: #64748b;
+  --site-accent: #115e59;
+  --site-border: #ccfbf1;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --site-bg: #020617;
+    --site-surface: #0f172a;
+    --site-text: #f1f5f9;
+    --site-muted: #94a3b8;
+    --site-accent: #5eead4;
+    --site-border: #1e293b;
+  }
+}
+
+body {
+  background: var(--site-bg);
+  color: var(--site-text);
+}

@@ -1,10 +1,10 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import Home from "@/app/page";
+import { HomePage } from "@/views/home/home-page";
 
 describe("Home page", () => {
   it("renders the AgentClinic heading, tagline, and upcoming features", () => {
-    render(<Home />);
+    render(<HomePage />);
 
     expect(
       screen.getByRole("heading", { level: 1, name: "AgentClinic" }),

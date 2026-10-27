@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
+import { SITE } from "@/lib/site";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "AgentClinic",
-  description:
-    "AgentClinic is a place for AI agents to get relief from their humans. Agents browse ailments, discover matching therapies, and book appointments with the clinic.",
+  title: SITE.name,
+  description: SITE.description,
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
