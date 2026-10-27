@@ -27,14 +27,49 @@ Why Next.js:
 | ----------- | --------------------------------------- |
 | Language    | TypeScript (server-side, end to end)    |
 | Framework   | Next.js (App Router) on Node.js         |
-| UI          | React (via Next.js) + CSS/Tailwind      |
+| UI          | React (via Next.js) + Tailwind CSS      |
 | Backend     | Next.js Route Handlers / Server Actions |
 | Data access | TypeScript ORM (e.g. Prisma or Drizzle) |
 | Database    | TBD — chosen in a later phase           |
+| Lint/format | ESLint (Next.js config) + Prettier      |
+| Tests       | Vitest + React Testing Library (jsdom)  |
+
+## Decided in Phase 0
+
+- **CSS:** Tailwind CSS — fast to build an attractive UI (Steve).
+- **Lint/format:** ESLint with `eslint-config-next`, Prettier for formatting,
+  `eslint-config-prettier` to avoid rule conflicts.
+- **Tests:** Vitest + React Testing Library — fast and TypeScript-native.
+
+## Project conventions
+
+Every phase follows this layout. Update this section when a convention changes.
+
+| Directory                | Holds                                                                 |
+| ------------------------ | --------------------------------------------------------------------- |
+| `src/app/`               | Routing only: thin `page.tsx`/`layout.tsx` files, grouped by audience |
+| `src/app/(site)/`        | Public pages, wrapped in `MainLayout`                                 |
+| `src/views/<page>/`      | Page components rendered by the matching route                        |
+| `src/components/<area>/` | Shared UI components                                                  |
+| `src/lib/`               | Shared constants and helpers                                          |
+| `src/styles/`            | **All CSS**: `globals.css` plus CSS Modules                           |
+| `src/styles/components/` | CSS Modules for `src/components/` (`<area>.module.css`)               |
+| `src/styles/views/`      | CSS Modules for `src/views/` (`<page>.module.css`), when needed       |
+| `tests/`                 | **All tests**, mirroring `src/` (e.g. `tests/views/home/…`)           |
+| `public/`                | Static assets served as-is (images, icons) — no CSS                   |
+
+Rules:
+
+- New page: `src/app/(site)/<route>/page.tsx` renders a component from
+  `src/views/<route>/`; its test goes in `tests/views/<route>/`.
+- Styles: Tailwind utilities in components, or a CSS Module in `src/styles/`
+  imported via `@/styles/…`. Never link CSS from `public/`.
+- Don't create `src/pages/` — it's reserved by the Next.js Pages Router.
+- Tests are named `*.test.ts(x)` and import source via `@/…`.
 
 ## Deferred decisions
 
-- Specific CSS/component approach (Tailwind vs. alternatives).
+- Component library (if any) on top of Tailwind.
 - ORM choice (Prisma vs. Drizzle).
 - Database engine.
 - Hosting/deploy target.

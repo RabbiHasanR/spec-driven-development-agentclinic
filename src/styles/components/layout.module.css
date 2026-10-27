@@ -1,0 +1,50 @@
+.shell {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+.container {
+  width: 100%;
+  max-width: 64rem;
+  margin-inline: auto;
+  padding-inline: 1rem;
+}
+
+.header {
+  border-bottom: 1px solid var(--site-border);
+  background: var(--site-surface);
+}
+
+.headerInner {
+  display: flex;
+  align-items: center;
+  min-height: 3.5rem;
+}
+
+.brand {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--site-accent);
+  text-decoration: none;
+}
+
+.brand:hover,
+.brand:focus-visible {
+  text-decoration: underline;
+}
+
+.main {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  padding-block: 4rem;
+}
+
+.footer {
+  border-top: 1px solid var(--site-border);
+  padding-block: 1.5rem;
+  font-size: 0.875rem;
+  color: var(--site-muted);
+  text-align: center;
+}
