@@ -30,5 +30,27 @@ npm run dev   # start the dev server at http://localhost:3000
 
 ## Project layout
 
-- `src/app/` — Next.js App Router pages, layout, and global styles
-- `specs/` — mission, tech stack, roadmap, and per-phase specs
+```text
+src/
+├── app/                  # Routing only: thin route files, layouts, global CSS
+│   ├── layout.tsx        # Root <html>/<body>, metadata, globals.css
+│   ├── globals.css       # Tailwind + shared color tokens (CSS variables)
+│   └── (site)/           # Route group (not part of the URL)
+│       ├── layout.tsx    # Wraps public pages in <MainLayout>
+│       └── page.tsx      # "/" → renders <HomePage />
+├── components/           # Shared UI
+│   └── layout/           # MainLayout = Header + MainContent + Footer
+│       └── layout.module.css
+├── views/                # Page components, one folder per page
+│   └── home/
+└── lib/                  # Shared constants and helpers (site.ts)
+specs/                    # Mission, tech stack, roadmap, per-phase specs
+```
+
+Conventions:
+
+- Add a page as `src/app/(site)/<route>/page.tsx` that renders a component from
+  `src/views/<route>/`. Keep route files thin.
+- `src/pages/` is reserved by the Next.js Pages Router — don't create it.
+- Component styles use CSS Modules (`*.module.css`) or Tailwind utilities; tests
+  sit next to the code as `*.test.tsx`.
