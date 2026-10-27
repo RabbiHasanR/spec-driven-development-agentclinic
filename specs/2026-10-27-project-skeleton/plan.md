@@ -39,3 +39,24 @@
 1. Run every check in `validation.md`.
 2. Update `README.md` with setup and script usage.
 3. Update `specs/tech-stack.md` deferred decisions (Tailwind, lint, tests now decided).
+
+## 7. Directory structure and main layout
+
+1. Keep `src/app/` for routing only: thin route files that render page components.
+   - Move the home route into a `(site)` route group: `src/app/(site)/page.tsx`.
+2. Add `src/views/<page>/` for page components (`src/views/home/home-page.tsx`).
+   - Not `src/pages/` — that name is reserved for the Next.js Pages Router.
+3. Add `src/components/layout/` with a `MainLayout` composed of three subcomponents:
+   - `Header` — site title linking to `/` (no feature nav yet).
+   - `MainContent` — the page's `<main>` landmark.
+   - `Footer` — short footer line.
+4. Style the layout with a CSS Module, `layout.module.css`, imported by the layout
+   components (Next.js bundles it and emits the `<link>` tag). Shared color tokens
+   live as CSS variables in `src/app/globals.css`.
+5. Add `src/lib/site.ts` for shared site constants (name, tagline, description).
+6. Render `MainLayout` from the route group layout `src/app/(site)/layout.tsx`;
+   the root `src/app/layout.tsx` keeps only `<html>`, `<body>`, and global CSS.
+   (Later groups, e.g. the Phase 4 dashboard, can use a different layout.)
+7. Add tests for `MainLayout` (banner, main, contentinfo landmarks) and update the
+   home page test.
+8. Update `README.md` project layout.

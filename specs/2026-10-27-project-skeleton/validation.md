@@ -5,12 +5,12 @@ Phase 0 is mergeable when **all** of the following pass on a clean checkout
 
 ## Automated checks
 
-| Check            | Command                | Pass criteria                  |
-| ---------------- | ---------------------- | ------------------------------ |
-| Production build | `npm run build`        | Exits 0, no type errors        |
-| Lint             | `npm run lint`         | Exits 0, no errors or warnings |
-| Formatting       | `npm run format:check` | Exits 0                        |
-| Tests            | `npm test`             | Home page smoke test passes    |
+| Check            | Command                | Pass criteria                   |
+| ---------------- | ---------------------- | ------------------------------- |
+| Production build | `npm run build`        | Exits 0, no type errors         |
+| Lint             | `npm run lint`         | Exits 0, no errors or warnings  |
+| Formatting       | `npm run format:check` | Exits 0                         |
+| Tests            | `npm test`             | Home page and layout tests pass |
 
 ## Manual check
 
@@ -20,7 +20,9 @@ Phase 0 is mergeable when **all** of the following pass on a clean checkout
    features, centered and styled with Tailwind.
 4. Page has no leftover create-next-app content and the browser tab title is "AgentClinic".
 5. Layout reads well at desktop and phone widths (no horizontal scroll).
-6. Browser console shows no errors.
+6. Every page shows the shared header (AgentClinic title linking home), main
+   content, and footer.
+7. Browser console shows no errors.
 
 ## Repo hygiene
 
