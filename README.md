@@ -32,25 +32,25 @@ npm run dev   # start the dev server at http://localhost:3000
 
 ```text
 src/
-├── app/                  # Routing only: thin route files, layouts, global CSS
-│   ├── layout.tsx        # Root <html>/<body>, metadata, globals.css
-│   ├── globals.css       # Tailwind + shared color tokens (CSS variables)
+├── app/                  # Routing only: thin route files and layouts
+│   ├── layout.tsx        # Root <html>/<body>, metadata, global CSS import
 │   └── (site)/           # Route group (not part of the URL)
 │       ├── layout.tsx    # Wraps public pages in <MainLayout>
 │       └── page.tsx      # "/" → renders <HomePage />
 ├── components/           # Shared UI
 │   └── layout/           # MainLayout = Header + MainContent + Footer
-│       └── layout.module.css
 ├── views/                # Page components, one folder per page
 │   └── home/
-└── lib/                  # Shared constants and helpers (site.ts)
+├── lib/                  # Shared constants and helpers (site.ts)
+└── styles/               # All CSS
+    ├── globals.css       # Tailwind + shared color tokens
+    └── components/       # CSS Modules for src/components/
+tests/                    # All tests, mirroring src/
+├── setup.ts
+├── components/layout/
+└── views/home/
 specs/                    # Mission, tech stack, roadmap, per-phase specs
 ```
 
-Conventions:
-
-- Add a page as `src/app/(site)/<route>/page.tsx` that renders a component from
-  `src/views/<route>/`. Keep route files thin.
-- `src/pages/` is reserved by the Next.js Pages Router — don't create it.
-- Component styles use CSS Modules (`*.module.css`) or Tailwind utilities; tests
-  sit next to the code as `*.test.tsx`.
+New code follows the conventions in
+[specs/tech-stack.md → Project conventions](specs/tech-stack.md#project-conventions).
