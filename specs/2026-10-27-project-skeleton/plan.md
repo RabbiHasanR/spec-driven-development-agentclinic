@@ -56,7 +56,7 @@
 5. Add `src/lib/site.ts` for shared site constants (name, tagline, description).
 6. Render `MainLayout` from the route group layout `src/app/(site)/layout.tsx`;
    the root `src/app/layout.tsx` keeps only `<html>`, `<body>`, and global CSS.
-   (Later groups, e.g. the Phase 4 dashboard, can use a different layout.)
+   (Later groups, e.g. the Phase 2 dashboard, can use a different layout.)
 7. Add tests for `MainLayout` (banner, main, contentinfo landmarks) and update the
    home page test. (Moved to `tests/` in §8.)
 8. Update `README.md` project layout.
@@ -74,3 +74,14 @@
      `src/styles/components/layout.module.css`
 4. Record these conventions in `specs/tech-stack.md` so later phases follow them.
 5. Update `README.md` project layout.
+
+## 9. Responsive design
+
+1. Add the responsive design standard to `specs/tech-stack.md` and reference it
+   from the mission, roadmap, and this spec.
+2. Rewrite `src/styles/components/layout.module.css` mobile-first: tighter
+   padding on phones, growing at `sm`/`md`; long text wraps.
+3. Make the header home link a 44px-tall tap target.
+4. Export `viewport` (`themeColor`, `colorScheme`) from `src/app/layout.tsx`;
+   keep the default `width=device-width`, never disable zoom.
+5. Check the home page at 320px, 768px, and 1280px.

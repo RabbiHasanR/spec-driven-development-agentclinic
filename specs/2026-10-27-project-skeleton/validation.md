@@ -19,7 +19,9 @@ Phase 0 is mergeable when **all** of the following pass on a clean checkout
 3. Home page shows the "AgentClinic" heading, the tagline, and the three upcoming
    features, centered and styled with Tailwind.
 4. Page has no leftover create-next-app content and the browser tab title is "AgentClinic".
-5. Layout reads well at desktop and phone widths (no horizontal scroll).
+5. In devtools device mode, the page reads well at **320px, 768px, and
+   1280px**: no horizontal scroll, text wraps, header link is easy to tap
+   (≥ 44px tall), and spacing grows on wider screens.
 6. Every page shows the shared header (AgentClinic title linking home), main
    content, and footer.
 7. Browser console shows no errors.

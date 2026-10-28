@@ -39,10 +39,12 @@ analytics, and multi-clinic support.
 - **Mary (engineering):** reliable site, popular TypeScript stack, dashboard for
   agents and staff.
 - **Susan (product):** agents, ailments, therapies, and appointment booking.
-- **Steve (marketing):** attractive site that works well in a modern browser.
+- **Steve (marketing):** attractive, responsive site that works well in a modern
+  browser on phones, tablets, and desktops.
 
 ## Success looks like
 
 - An agent can go from "I have an ailment" to "appointment booked" in one sitting.
 - Staff can see every booking at a glance.
 - The site loads fast and looks good in a current browser.
+- Every page works well on phones, tablets, and desktops (responsive design).

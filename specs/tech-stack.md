@@ -67,6 +67,37 @@ Rules:
 - Don't create `src/pages/` — it's reserved by the Next.js Pages Router.
 - Tests are named `*.test.ts(x)` and import source via `@/…`.
 
+## Validation
+
+Vitest tests are how we validate every change. Work isn't done until they pass.
+
+- `npm test` runs the whole suite once (`vitest run`). Use it before committing and in CI.
+- `npm run test:watch` re-runs tests as you edit.
+- Each phase's acceptance criteria are written as Vitest tests in `tests/`.
+- Run `npm run lint` and `npm run format:check` alongside `npm test`.
+
+## Responsive design
+
+Every page's UI must be responsive. This section is the single standard that
+all feature specs reference.
+
+- **Mobile-first:** base styles target the smallest screen; wider layouts are
+  added with `min-width` media queries (Tailwind `sm:`/`md:`/`lg:` prefixes).
+- **Breakpoints:** Tailwind defaults — `sm` 640px, `md` 768px, `lg` 1024px,
+  `xl` 1280px. CSS Modules use the same values in `@media (min-width: …)`
+  (CSS variables can't be used in media queries, so keep these in sync).
+- **Supported widths:** 320px (small phone) to wide desktop, with no horizontal
+  page scroll at any width. Wide content (e.g. tables) scrolls inside its own
+  container or reflows into cards on small screens.
+- **Fluid layout:** percentage/flex/grid widths capped with `max-width`; no fixed
+  pixel widths on containers; long text wraps (`overflow-wrap: anywhere`).
+- **Touch:** interactive elements have tap targets of at least 44×44px;
+  nothing depends on hover alone.
+- **Viewport:** use the Next.js default viewport meta; never disable zoom
+  (`maximumScale`, `userScalable: false`).
+- **Verification:** every phase with UI is checked manually at **320px, 768px,
+  and 1280px** (browser devtools device mode) before it's mergeable.
+
 ## Deferred decisions
 
 - Component library (if any) on top of Tailwind.

@@ -21,17 +21,19 @@ In scope:
   centralized `tests/` directory.
 - Main layout (`Header`, `MainContent`, `Footer`) styled with a CSS Module.
 - All CSS centralized in `src/styles/`.
+- Responsive, mobile-first layout and home page per
+  [tech-stack.md → Responsive design](../tech-stack.md#responsive-design).
 - Directory structure: `app/` for routing, `views/` for pages, `components/` for
   shared UI, `lib/` for shared constants.
 
 Out of scope:
 
-- Ailments, therapies, appointments, dashboard (Phases 1–4).
+- Ailments, therapies, appointments, dashboard (Phases 1–2).
 - ORM and database selection.
 - CI workflows, hosting/deploy.
 - Links/navigation to feature pages (they don't exist yet); the header only
   links home.
-- Full visual design and branding (Phase 5).
+- Full visual design and branding (Phase 2).
 
 ## Decisions
 
