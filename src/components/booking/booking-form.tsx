@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useRef } from "react";
-import { Button } from "@/components/ui";
+import { Button, TextField } from "@/components/ui";
 import type { SlotDay } from "@/lib/booking/format";
 import {
   INITIAL_BOOKING_FORM_STATE,
@@ -13,7 +13,6 @@ import {
   type BookingInput,
 } from "@/lib/booking/validate";
 import { SlotPicker } from "./slot-picker";
-import { TextField } from "./text-field";
 
 /** Fields in on-screen order, so focus goes to the first one with an error. */
 const FIELD_ORDER: (keyof BookingInput)[] = [

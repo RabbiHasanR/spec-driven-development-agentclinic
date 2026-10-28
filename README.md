@@ -63,7 +63,7 @@ src/
 ├── app/                  # Routing only: thin route files and layouts
 │   ├── layout.tsx        # Root <html>/<body>, metadata, global CSS import
 │   ├── not-found.tsx     # 404 for unmatched URLs (adds <MainLayout> itself)
-│   └── (site)/           # Route group (not part of the URL)
+│   ├── (site)/           # Route group (not part of the URL)
 │       ├── layout.tsx    # Wraps public pages in <MainLayout>
 │       ├── error.tsx     # Error boundary with a retry button
 │       ├── loading.tsx   # Shared loading state for every public page
@@ -76,16 +76,19 @@ src/
 ├── components/           # Shared UI
 │   ├── layout/           # MainLayout = Header (+ NavLink) + MainContent + Footer
 │   ├── catalog/          # AilmentCard, TherapyCard
-│   ├── booking/          # BookingForm (client), SlotPicker, TextField, FieldError
+│   ├── booking/          # BookingForm (client), SlotPicker
 │   ├── dashboard/        # BookingsTable, OverviewStats
-│   └── ui/               # PageHeader, Section, Button, ArrowLink, BackLink
+│   └── ui/               # PageHeader, Section, Button, ArrowLink, BackLink,
+│                         #   TextField, FieldError
 ├── views/                # Page components, one folder per page
 │   ├── home/  ailments/  ailment-detail/  book-therapy/
 │   ├── booking-confirmation/  dashboard/
 │   └── error/  not-found/  loading/
 ├── lib/                  # Shared helpers: site.ts, routes.ts (all URL paths)
-│   ├── booking/          # Slots, time zones, formatting, validation, Server Action
-│   └── db/               # Drizzle schema, client, queries, migrator, seed, types
+│   ├── booking/          # Slots, availability, time zones, formatting,
+│   │                     #   validation, dashboard overview, Server Action
+│   └── db/               # Drizzle schema, client, queries, references,
+│                         #   migrator, seed, types
 └── styles/               # All CSS
     ├── globals.css       # Tailwind, color tokens, `card` / `focus-ring` utilities
     └── components/       # CSS Modules for src/components/

@@ -1,5 +1,5 @@
 import { formatZone, type SlotDay } from "@/lib/booking/format";
-import { FieldError } from "./field-error";
+import { FieldError, fieldErrorId } from "@/components/ui";
 
 /**
  * Open time slots as large radio buttons, one group per day. The native
@@ -17,7 +17,7 @@ export function SlotPicker({
   defaultValue: string;
   error?: string;
 }) {
-  const errorId = `${name}-error`;
+  const errorId = fieldErrorId(name);
   const firstSlot = days[0]?.slots[0]?.value;
   return (
     <fieldset
@@ -32,7 +32,7 @@ export function SlotPicker({
           </span>
         )}
       </legend>
-      <FieldError id={errorId} error={error} />
+      <FieldError name={name} error={error} />
       <div className="mt-3 space-y-5">
         {days.map(({ day, slots }) => (
           <fieldset key={day} className="min-w-0">

@@ -1,5 +1,5 @@
 // @vitest-environment node
-import { beforeAll, describe, expect, it, vi } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import type { Db } from "@/lib/db/connection";
 import { createTestDb } from "../../../../../helpers/db";
 
@@ -24,7 +24,16 @@ const propsFor = (slug: string) => ({
 
 describe("/therapies/[slug]/book route", () => {
   beforeAll(() => {
+    // Wednesday 28 October 2026, 12:30 UTC.
+    vi.useFakeTimers({
+      toFake: ["Date"],
+      now: new Date("2026-10-28T12:30:00Z"),
+    });
     mocks.db = createTestDb();
+  });
+
+  afterAll(() => {
+    vi.useRealTimers();
   });
 
   it("titles the page with the therapy's name", async () => {
@@ -38,7 +47,7 @@ describe("/therapies/[slug]/book route", () => {
     const element = await Page(propsFor("grounding-session"));
 
     expect(element.props.therapy.slug).toBe("grounding-session");
-    expect(element.props.slots.length).toBeGreaterThan(0);
+    expect(element.props.slots[0]).toBe("2026-10-28T13:00:00.000Z");
     expect(element.props.action).toBeTypeOf("function");
   });
 

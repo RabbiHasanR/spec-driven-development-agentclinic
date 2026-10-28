@@ -117,14 +117,18 @@ Rules:
 - Reuse the `card` and `focus-ring` utilities (in `globals.css`) and the
   `src/components/ui/` components (`PageHeader`, `Section`, `Button`,
   `ArrowLink`, `BackLink`) instead of repeating class strings.
-- Every page group has one `loading.tsx` that re-exports `LoadingPage` from
-  `src/views/loading/`; don't add per-route copies.
+- Every route group has one `loading.tsx` and one `error.tsx`, re-exporting
+  `LoadingPage` (`src/views/loading/`) and `ErrorBoundary`
+  (`src/views/error/`); don't add per-route copies.
 - URL paths live in `src/lib/routes.ts` (`ROUTES`, `ailmentPath()`,
   `bookTherapyPath()`, `bookingPath()`); never type a path string in a
   component.
 - UI code imports row types from `src/lib/db/types.ts`, never the schema.
 - Don't create `src/pages/` — it's reserved by the Next.js Pages Router.
 - Tests are named `*.test.ts(x)` and import source via `@/…`.
+- Dependencies point one way: `src/lib/<area>/` may import `src/lib/db/`, but
+  `src/lib/db/` imports nothing from other `src/` areas (enforced by
+  `tests/conventions.test.ts`).
 - Only `src/lib/db/` imports Drizzle or `better-sqlite3`. Query functions take
   the `Db` as their first argument; routes pass `getDb()` (server-only), tests
   pass an in-memory DB from `tests/helpers/db.ts`.

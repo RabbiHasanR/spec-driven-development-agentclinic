@@ -12,7 +12,7 @@ describe("Button", () => {
     );
   });
 
-  it("keeps its base styles when given extra classes", () => {
+  it("adds the caller's classes", () => {
     render(
       <Button type="submit" className="w-full">
         Go
@@ -21,6 +21,6 @@ describe("Button", () => {
 
     const button = screen.getByRole("button", { name: "Go" });
     expect(button).toHaveAttribute("type", "submit");
-    expect(button).toHaveClass("min-h-11", "w-full");
+    expect(button).toHaveClass("w-full");
   });
 });

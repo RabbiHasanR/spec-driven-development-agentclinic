@@ -35,7 +35,7 @@ describe("BookingForm", () => {
     expect(
       screen.getByRole("group", { name: "Monday 2 November" }),
     ).toBeInTheDocument();
-    expect(screen.getAllByRole("radio")).toHaveLength(3);
+    expect(screen.getAllByRole("radio")).toHaveLength(SLOTS.length);
     expect(
       screen.getByRole("group", { name: "Pick a time (UTC)" }),
     ).toBeInTheDocument();

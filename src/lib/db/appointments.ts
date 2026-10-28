@@ -1,10 +1,14 @@
 import { asc, eq } from "drizzle-orm";
-import { generateReference as defaultGenerateReference } from "@/lib/booking/reference";
-import { generateSlots, removeBookedSlots } from "@/lib/booking/slots";
-import type { BookingInput } from "@/lib/booking/validate";
 import type { Db } from "./connection";
-import { appointments, therapies } from "./schema";
+import { generateReference as defaultGenerateReference } from "./reference";
+import { appointments, therapies, type NewAppointment } from "./schema";
 import type { AppointmentWithTherapy, Therapy } from "./types";
+
+/** The fields a caller supplies for a new booking; the rest are generated. */
+export type NewBooking = Pick<
+  NewAppointment,
+  "agentName" | "agentEmail" | "startsAt"
+>;
 
 /** Attempts at a fresh reference before giving up; a clash is very rare. */
 const MAX_REFERENCE_ATTEMPTS = 5;
@@ -42,18 +46,6 @@ export function listBookedSlots(db: Db, therapyId: number): string[] {
 }
 
 /**
- * A therapy's bookable start times right now: its generated slots minus any
- * that overlap a booking.
- */
-export function listOpenSlots(db: Db, therapy: Therapy, now: Date): string[] {
-  return removeBookedSlots(
-    generateSlots(now, therapy.durationMinutes),
-    listBookedSlots(db, therapy.id),
-    therapy.durationMinutes,
-  );
-}
-
-/**
  * Books a slot. The database's unique `(therapy_id, starts_at)` index decides
  * races, so of two concurrent bookings for one slot exactly one succeeds.
  *
@@ -68,7 +60,7 @@ export function listOpenSlots(db: Db, therapy: Therapy, now: Date): string[] {
 export function createAppointment(
   db: Db,
   therapy: Therapy,
-  input: BookingInput,
+  input: NewBooking,
   {
     now = new Date(),
     generateReference = defaultGenerateReference,

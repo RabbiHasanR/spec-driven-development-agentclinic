@@ -19,6 +19,17 @@ All notable changes to AgentClinic, grouped by date (newest first).
   a `danger` color token, and one shared loading page.
 - Updated the home page now that booking is live, recorded the Phase 2
   decisions in the tech stack, and marked roadmap Phase 2 as complete.
+- Fixed a taken slot staying offered and selected after a "no longer
+  available" error, blocked slots that overlap an existing booking (even after
+  a therapy's length changes), and made Back after booking skip the form.
+- Made form control borders meet WCAG contrast, moved focus to the first
+  error after a failed booking, and put name and email before the slot list.
+- Linked the home page's "Book appointments" item, and made "Busiest therapy"
+  count by therapy and show no leader on a tie.
+- Kept the database layer free of booking logic, moved `TextField` and
+  `FieldError` into the shared UI components, shared one error boundary
+  across route groups, and added convention tests for paths, colors, and
+  layer imports.
 
 - Defined the Vitest suite as the validation gate in the tech stack.
 - Added tests for site metadata and project directory conventions.

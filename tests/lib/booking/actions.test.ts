@@ -14,6 +14,7 @@ import type { Db } from "@/lib/db/connection";
 import {
   createAppointment,
   getAppointmentByReference,
+  listAppointments,
 } from "@/lib/db/appointments";
 import { getTherapyBySlug } from "@/lib/db/therapies";
 import { createTestDb } from "../../helpers/db";
@@ -89,9 +90,7 @@ describe("bookAppointment", () => {
       "agentEmail",
       "agentName",
     ]);
-    expect(
-      mocks.db!.$client.prepare("select count(*) as n from appointments").get(),
-    ).toEqual({ n: 0 });
+    expect(listAppointments(mocks.db!)).toEqual([]);
   });
 
   it("reports a slot taken since the page loaded", async () => {

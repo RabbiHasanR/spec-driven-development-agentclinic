@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, expect, it } from "vitest";
-import { generateReference } from "@/lib/booking/reference";
+import { generateReference } from "@/lib/db/reference";
 
 describe("generateReference", () => {
   it("makes AC- codes from unambiguous characters", () => {

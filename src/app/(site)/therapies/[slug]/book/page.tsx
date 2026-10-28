@@ -3,13 +3,14 @@ import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { cache } from "react";
 import { bookAppointment } from "@/lib/booking/actions";
-import { listOpenSlots } from "@/lib/db/appointments";
+import { listOpenSlots } from "@/lib/booking/availability";
 import { getDb } from "@/lib/db/client";
 import { getTherapyBySlug } from "@/lib/db/therapies";
 import { BookTherapyPage } from "@/views/book-therapy/book-therapy-page";
 
-// Shared by generateMetadata and Page so each request queries once. Open slots
-// change with every booking, so this always reads per request.
+// Shared by generateMetadata and Page so each request queries once. Its
+// connection() also makes the page's slot read below per-request, which
+// matters because open slots change with every booking.
 const loadTherapy = cache(async (slug: string) => {
   await connection();
   return getTherapyBySlug(getDb(), slug) ?? notFound();

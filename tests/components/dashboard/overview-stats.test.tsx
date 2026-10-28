@@ -1,9 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { OverviewStats } from "@/components/dashboard";
-
-const valueOf = (label: string) =>
-  screen.getByText(label).nextElementSibling?.textContent;
+import { definitionOf } from "../../helpers/dom";
 
 describe("OverviewStats", () => {
   it("shows today's, upcoming, and busiest-therapy figures", () => {
@@ -17,9 +15,9 @@ describe("OverviewStats", () => {
       />,
     );
 
-    expect(valueOf("Today")).toBe("2");
-    expect(valueOf("Upcoming")).toBe("5");
-    expect(valueOf("Busiest therapy")).toBe("Grounding Session");
+    expect(definitionOf("Today")).toBe("2");
+    expect(definitionOf("Upcoming")).toBe("5");
+    expect(definitionOf("Busiest therapy")).toBe("Grounding Session");
     expect(screen.getByText("3 upcoming")).toBeInTheDocument();
   });
 
@@ -30,7 +28,7 @@ describe("OverviewStats", () => {
       />,
     );
 
-    expect(valueOf("Busiest therapy")).toBe("—");
+    expect(definitionOf("Busiest therapy")).toBe("—");
   });
 
   it("says there's no single leader when therapies tie", () => {
@@ -40,7 +38,7 @@ describe("OverviewStats", () => {
       />,
     );
 
-    expect(valueOf("Busiest therapy")).toBe("—");
+    expect(definitionOf("Busiest therapy")).toBe("—");
     expect(screen.getByText("No single leader yet")).toBeInTheDocument();
   });
 });

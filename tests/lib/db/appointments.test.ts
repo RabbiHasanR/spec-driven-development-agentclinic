@@ -7,7 +7,6 @@ import {
   isUniqueViolation,
   listAppointments,
   listBookedSlots,
-  listOpenSlots,
 } from "@/lib/db/appointments";
 import type { Db } from "@/lib/db/connection";
 import { therapies } from "@/lib/db/schema";
@@ -36,17 +35,12 @@ describe("appointment queries", () => {
     cooldown = getTherapyBySlug(db, "cooldown-retreat")!;
   });
 
-  it("finds a therapy by slug, and nothing for an unknown slug", () => {
-    expect(grounding.name).toBe("Grounding Session");
-    expect(getTherapyBySlug(db, "does-not-exist")).toBeUndefined();
-  });
-
   it("stores a booking with a unique reference", () => {
     const first = createAppointment(db, grounding, input(), { now: NOW });
     const second = createAppointment(
       db,
       grounding,
-      input(SLOT.replace("09", "10")),
+      input("2026-11-02T10:00:00.000Z"),
     );
 
     expect(first).toMatchObject({
@@ -111,32 +105,6 @@ describe("appointment queries", () => {
       SLOT,
       "2026-11-03T09:00:00.000Z",
     ]);
-  });
-
-  it("leaves booked slots out of the open slots", () => {
-    const before = listOpenSlots(db, grounding, NOW);
-    createAppointment(db, grounding, input());
-
-    const after = listOpenSlots(db, grounding, NOW);
-    expect(before).toContain(SLOT);
-    expect(after).not.toContain(SLOT);
-    expect(after).toHaveLength(before.length - 1);
-    expect(listOpenSlots(db, cooldown, NOW)).toContain(SLOT);
-  });
-
-  it("blocks slots that overlap a booking made before the session got longer", () => {
-    const boundary = getTherapyBySlug(db, "boundary-setting-workshop")!;
-    createAppointment(db, boundary, input("2026-11-02T10:00:00.000Z"));
-    db.update(therapies)
-      .set({ durationMinutes: 90 })
-      .where(eq(therapies.id, boundary.id))
-      .run();
-
-    const open = listOpenSlots(db, getTherapyBySlug(db, boundary.slug)!, NOW);
-
-    expect(open).not.toContain("2026-11-02T09:00:00.000Z");
-    expect(open).not.toContain("2026-11-02T11:00:00.000Z");
-    expect(open).toContain("2026-11-02T13:00:00.000Z");
   });
 
   it("recognizes a unique violation wrapped by Drizzle", () => {

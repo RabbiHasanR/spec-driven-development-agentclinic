@@ -1,5 +1,5 @@
 import type { ComponentProps } from "react";
-import { FieldError } from "./field-error";
+import { FieldError, fieldErrorId } from "./field-error";
 
 /**
  * A labelled, full-width text input with an optional error message, wired up
@@ -15,7 +15,6 @@ export function TextField({
   "name" | "id"
 >) {
   const id = `field-${name}`;
-  const errorId = `${id}-error`;
   return (
     <div>
       <label htmlFor={id} className="block font-medium">
@@ -25,11 +24,11 @@ export function TextField({
         id={id}
         name={name}
         aria-invalid={error ? true : undefined}
-        aria-describedby={error ? errorId : undefined}
+        aria-describedby={error ? fieldErrorId(name) : undefined}
         className="mt-1 block min-h-11 w-full rounded-lg bg-surface px-3 text-base ring-1 ring-control focus-ring aria-invalid:ring-2 aria-invalid:ring-danger"
         {...inputProps}
       />
-      <FieldError id={errorId} error={error} />
+      <FieldError name={name} error={error} />
     </div>
   );
 }

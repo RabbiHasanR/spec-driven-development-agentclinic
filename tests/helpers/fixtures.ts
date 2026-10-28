@@ -62,16 +62,18 @@ export const SLOTS = [
   "2026-11-03T09:00:00.000Z",
 ];
 
-/** A booking of `therapy` at `startsAt`, with a unique id and reference. */
+let nextAppointmentId = 100;
+
+/** A booking of `therapy` at `startsAt`, with a fresh id and reference. */
 export function appointmentAt(
   startsAt: string,
   therapy: Therapy = THERAPIES[1],
 ): AppointmentWithTherapy {
-  const id = Date.parse(startsAt) / 1000 + therapy.id;
+  const id = nextAppointmentId++;
   return {
     ...APPOINTMENT,
     id,
-    reference: `AC-${id}`,
+    reference: `AC-TEST${id}`,
     startsAt,
     therapyId: therapy.id,
     therapy,

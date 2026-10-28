@@ -1,3 +1,6 @@
+// Separate from actions.ts: a "use server" file may only export async
+// functions, so the form's state type and initial value live here.
+
 import type { BookingFieldErrors, BookingInput } from "./validate";
 
 /**

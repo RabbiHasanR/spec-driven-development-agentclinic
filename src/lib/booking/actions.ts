@@ -2,10 +2,11 @@
 
 import { refresh } from "next/cache";
 import { redirect, RedirectType } from "next/navigation";
-import { createAppointment, listOpenSlots } from "@/lib/db/appointments";
+import { createAppointment } from "@/lib/db/appointments";
 import { getDb } from "@/lib/db/client";
 import { getTherapyBySlug } from "@/lib/db/therapies";
 import { bookingPath } from "@/lib/routes";
+import { listOpenSlots } from "./availability";
 import type { BookingFormState } from "./form-state";
 import {
   readBookingForm,
