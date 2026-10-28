@@ -1,7 +1,13 @@
+/*
+ * Mobile-first: base rules target phones (≥ 320px); min-width queries add
+ * space on larger screens. Breakpoints match Tailwind: sm 640px, md 768px.
+ */
+
 .shell {
   display: flex;
   flex: 1;
   flex-direction: column;
+  overflow-wrap: anywhere;
 }
 
 .container {
@@ -22,7 +28,11 @@
   min-height: 3.5rem;
 }
 
+/* Full 44px-tall tap target, not just the text's line box. */
 .brand {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
   font-size: 1.125rem;
   font-weight: 600;
   color: var(--site-accent);
@@ -38,13 +48,37 @@
   display: flex;
   flex: 1;
   align-items: center;
-  padding-block: 4rem;
+  padding-block: 2rem;
 }
 
 .footer {
   border-top: 1px solid var(--site-border);
-  padding-block: 1.5rem;
+  padding-block: 1.25rem;
   font-size: 0.875rem;
   color: var(--site-muted);
   text-align: center;
+}
+
+@media (min-width: 640px) {
+  .main {
+    padding-block: 4rem;
+  }
+
+  .footer {
+    padding-block: 1.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .container {
+    padding-inline: 2rem;
+  }
+
+  .headerInner {
+    min-height: 4rem;
+  }
+
+  .brand {
+    font-size: 1.25rem;
+  }
 }
