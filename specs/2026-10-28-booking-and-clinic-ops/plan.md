@@ -43,9 +43,10 @@
 
 ## 3. Staff dashboard (slice 2)
 
-1. Add `listAppointments(db)` (upcoming first, then past; with therapy name)
-   and `getScheduleOverview(db, now)` (today's count, upcoming count, busiest
-   therapy) in `src/lib/db/appointments.ts`.
+1. Add `listAppointments(db)` (every booking with its therapy, earliest
+   first) in `src/lib/db/appointments.ts`. Add pure `splitSchedule()`
+   (upcoming first, then past) and `summarizeSchedule()` (today's count,
+   upcoming count, busiest therapy) in `src/lib/booking/overview.ts`.
 2. Add the `(staff)` route group with a layout wrapping `MainLayout`, and the
    route `src/app/(staff)/dashboard/page.tsx` → view `src/views/dashboard/`,
    with a `loading.tsx`.
@@ -63,7 +64,8 @@
    (e.g. a `Button`) or `globals.css` utilities.
 2. Make sure every data page has a `loading.tsx` and an empty state, and every
    page has a `<Page> · AgentClinic` title.
-3. Update the home page so its items link to the catalog and dashboard.
+3. Update the home page so its booking item links into the catalog (staff
+   reach the dashboard from the header).
 4. Cross-device pass at 320px, 768px, and 1280px in both color schemes; fix
    overflow, tap targets, and wrapping.
 5. Check the production build in a modern browser: no console errors, fast

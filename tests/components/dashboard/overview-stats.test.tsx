@@ -32,4 +32,15 @@ describe("OverviewStats", () => {
 
     expect(valueOf("Busiest therapy")).toBe("—");
   });
+
+  it("says there's no single leader when therapies tie", () => {
+    render(
+      <OverviewStats
+        overview={{ today: 0, upcoming: 2, busiestTherapy: null }}
+      />,
+    );
+
+    expect(valueOf("Busiest therapy")).toBe("—");
+    expect(screen.getByText("No single leader yet")).toBeInTheDocument();
+  });
 });

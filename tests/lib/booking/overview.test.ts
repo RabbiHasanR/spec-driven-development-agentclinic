@@ -42,6 +42,29 @@ describe("summarizeSchedule", () => {
     expect(overview.today).toBe(1);
   });
 
+  it("has no single busiest therapy when the top counts tie", () => {
+    const tied = [LATER_TODAY, NEXT_WEEK]; // one each for two therapies
+
+    expect(
+      summarizeSchedule(splitSchedule(tied, NOW), NOW, "UTC").busiestTherapy,
+    ).toBeNull();
+  });
+
+  it("counts therapies by id, not name", () => {
+    const twin = { ...THERAPIES[0], id: 99 }; // same name, different therapy
+    const appointments = [
+      appointmentAt("2026-11-02T09:00:00.000Z", THERAPIES[0]),
+      appointmentAt("2026-11-02T10:00:00.000Z", twin),
+      appointmentAt("2026-11-02T11:00:00.000Z", THERAPIES[1]),
+      appointmentAt("2026-11-02T12:00:00.000Z", THERAPIES[1]),
+    ];
+
+    expect(
+      summarizeSchedule(splitSchedule(appointments, NOW), NOW, "UTC")
+        .busiestTherapy,
+    ).toEqual({ name: THERAPIES[1].name, count: 2 });
+  });
+
   it("has no busiest therapy when nothing is upcoming", () => {
     expect(
       summarizeSchedule(splitSchedule([YESTERDAY], NOW), NOW, "UTC"),

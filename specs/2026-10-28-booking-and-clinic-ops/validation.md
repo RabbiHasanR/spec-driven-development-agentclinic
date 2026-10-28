@@ -33,8 +33,13 @@ Data layer (in-memory SQLite, real migrations and seed):
 - `listBookedSlots()` returns only that therapy's booked slots.
 - `getAppointmentByReference()` returns the booking with its therapy, and
   nothing for an unknown reference.
-- `listAppointments()` puts upcoming bookings first, in time order.
-- `getScheduleOverview()` returns the right counts for a fixed "now".
+- `listAppointments()` returns every booking with its therapy, earliest first.
+- `splitSchedule()` puts upcoming bookings first, in time order, and past ones
+  latest first.
+- `summarizeSchedule()` returns the right counts for a fixed "now"; the busiest
+  therapy is counted by id and is empty when the top counts tie.
+- Open slots exclude any slot overlapping a booking, even one made before the
+  therapy's length changed.
 - Deleting a therapy that has bookings fails (`restrict`).
 
 Booking action:

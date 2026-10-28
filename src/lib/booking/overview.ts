@@ -13,7 +13,7 @@ export type ScheduleOverview = {
   /** Bookings on today's clinic date, including ones already over. */
   today: number;
   upcoming: number;
-  /** The therapy with the most upcoming bookings; ties go to the first booked. */
+  /** The therapy with the most upcoming bookings; `null` if none or tied. */
   busiestTherapy: { name: string; count: number } | null;
 };
 
@@ -50,22 +50,31 @@ export function summarizeSchedule(
     JSON.stringify(zonedDate(instant, timeZone));
   const today = dayKey(now.getTime());
 
-  const counts = new Map<string, number>();
-  for (const { therapy } of upcoming) {
-    counts.set(therapy.name, (counts.get(therapy.name) ?? 0) + 1);
-  }
-  let busiestTherapy: ScheduleOverview["busiestTherapy"] = null;
-  for (const [name, count] of counts) {
-    if (!busiestTherapy || count > busiestTherapy.count) {
-      busiestTherapy = { name, count };
-    }
-  }
-
   return {
     today: [...upcoming, ...past].filter(
       (a) => dayKey(Date.parse(a.startsAt)) === today,
     ).length,
     upcoming: upcoming.length,
-    busiestTherapy,
+    busiestTherapy: findBusiestTherapy(upcoming),
   };
+}
+
+/**
+ * The therapy with the most of these bookings. Counted by id, since names
+ * aren't unique. A tie has no single busiest therapy, so it returns `null`
+ * rather than picking one arbitrarily.
+ */
+function findBusiestTherapy(
+  appointments: readonly AppointmentWithTherapy[],
+): ScheduleOverview["busiestTherapy"] {
+  const counts = new Map<number, { name: string; count: number }>();
+  for (const { therapy } of appointments) {
+    const entry = counts.get(therapy.id) ?? { name: therapy.name, count: 0 };
+    entry.count += 1;
+    counts.set(therapy.id, entry);
+  }
+  const [first, second] = [...counts.values()].sort(
+    (a, b) => b.count - a.count,
+  );
+  return first && first.count !== second?.count ? first : null;
 }

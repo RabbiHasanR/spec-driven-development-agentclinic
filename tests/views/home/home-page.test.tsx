@@ -19,15 +19,18 @@ describe("Home page", () => {
     expect(items.map((item) => item.textContent)).toEqual([
       "Browse ailments→",
       "Discover therapies (on each ailment’s page)",
-      "Book appointments (from any therapy)",
+      "Book appointments→",
     ]);
   });
 
-  it("links Browse ailments to the ailments catalog", () => {
-    render(<HomePage />);
+  it.each(["Browse ailments", "Book appointments"])(
+    "links %s into the ailments catalog",
+    (label) => {
+      render(<HomePage />);
 
-    expect(
-      screen.getByRole("link", { name: /Browse ailments/ }),
-    ).toHaveAttribute("href", "/ailments");
-  });
+      expect(
+        screen.getByRole("link", { name: new RegExp(label) }),
+      ).toHaveAttribute("href", "/ailments");
+    },
+  );
 });

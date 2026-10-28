@@ -10,7 +10,9 @@ export function OverviewStats({ overview }: { overview: ScheduleOverview }) {
       value: overview.busiestTherapy?.name ?? "—",
       note: overview.busiestTherapy
         ? `${overview.busiestTherapy.count} upcoming`
-        : undefined,
+        : overview.upcoming > 0
+          ? "No single leader yet"
+          : undefined,
     },
   ];
 
