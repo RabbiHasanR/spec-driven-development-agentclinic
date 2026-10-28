@@ -18,12 +18,17 @@ import {
 import { getTherapyBySlug } from "@/lib/db/therapies";
 import { createTestDb } from "../../helpers/db";
 
-const mocks = vi.hoisted(() => ({ db: undefined as Db | undefined }));
+const mocks = vi.hoisted(() => ({
+  db: undefined as Db | undefined,
+  refresh: vi.fn(),
+}));
 
 vi.mock("@/lib/db/client", () => ({ getDb: () => mocks.db }));
+vi.mock("next/cache", () => ({ refresh: mocks.refresh }));
 vi.mock("next/navigation", () => ({
-  redirect: (url: string) => {
-    throw new Error(`NEXT_REDIRECT ${url}`);
+  RedirectType: { replace: "replace", push: "push" },
+  redirect: (url: string, type?: string) => {
+    throw new Error(`NEXT_REDIRECT ${type} ${url}`);
   },
 }));
 
@@ -58,11 +63,14 @@ describe("bookAppointment", () => {
 
   beforeEach(() => {
     mocks.db = createTestDb();
+    mocks.refresh.mockClear();
   });
 
   it("books the slot and redirects to its confirmation page", async () => {
     const error = await submit(VALUES).catch((e: Error) => e);
 
+    // Replaces the form in history, so Back doesn't reopen it.
+    expect(String(error)).toContain("NEXT_REDIRECT replace /bookings/");
     const reference = String(error).match(/\/bookings\/(AC-\w+)$/)?.[1];
     expect(reference).toBeDefined();
     expect(getAppointmentByReference(mocks.db!, reference!)).toMatchObject({
@@ -93,6 +101,17 @@ describe("bookAppointment", () => {
     const state = await submit(VALUES);
 
     expect(state.errors).toEqual({ startsAt: SLOT_TAKEN_MESSAGE });
+    // The page refetches its slots and the stale choice isn't re-selected,
+    // while the agent's name and email are kept.
+    expect(mocks.refresh).toHaveBeenCalledOnce();
+    expect(state.values).toEqual({ ...VALUES, startsAt: "" });
+  });
+
+  it("doesn't refresh the page for name or email errors", async () => {
+    const state = await submit({ ...VALUES, agentEmail: "nope" });
+
+    expect(state.values.startsAt).toBe(SLOT);
+    expect(mocks.refresh).not.toHaveBeenCalled();
   });
 
   it("rejects a slot outside the schedule", async () => {

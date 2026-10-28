@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import {
   createAppointment,
   getAppointmentByReference,
+  isUniqueViolation,
   listAppointments,
   listBookedSlots,
   listOpenSlots,
@@ -121,6 +122,35 @@ describe("appointment queries", () => {
     expect(after).not.toContain(SLOT);
     expect(after).toHaveLength(before.length - 1);
     expect(listOpenSlots(db, cooldown, NOW)).toContain(SLOT);
+  });
+
+  it("blocks slots that overlap a booking made before the session got longer", () => {
+    const boundary = getTherapyBySlug(db, "boundary-setting-workshop")!;
+    createAppointment(db, boundary, input("2026-11-02T10:00:00.000Z"));
+    db.update(therapies)
+      .set({ durationMinutes: 90 })
+      .where(eq(therapies.id, boundary.id))
+      .run();
+
+    const open = listOpenSlots(db, getTherapyBySlug(db, boundary.slug)!, NOW);
+
+    expect(open).not.toContain("2026-11-02T09:00:00.000Z");
+    expect(open).not.toContain("2026-11-02T11:00:00.000Z");
+    expect(open).toContain("2026-11-02T13:00:00.000Z");
+  });
+
+  it("recognizes a unique violation wrapped by Drizzle", () => {
+    const sqliteError = Object.assign(
+      new Error("UNIQUE constraint failed: appointments.reference"),
+      { code: "SQLITE_CONSTRAINT_UNIQUE" },
+    );
+    const wrapped = new Error("Failed query: insert …", { cause: sqliteError });
+
+    expect(isUniqueViolation(wrapped, "appointments.reference")).toBe(true);
+    expect(isUniqueViolation(wrapped, "appointments.starts_at")).toBe(false);
+    expect(
+      isUniqueViolation(new Error("other"), "appointments.reference"),
+    ).toBe(false);
   });
 
   it("finds a booking by reference with its therapy", () => {

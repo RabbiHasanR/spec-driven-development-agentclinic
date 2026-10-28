@@ -46,3 +46,30 @@ export function generateSlots(
   }
   return slots;
 }
+
+const MINUTE_MS = 60_000;
+
+/**
+ * Removes slots whose session would overlap a booked one. Compares time
+ * ranges, not start times, so bookings made before a therapy's length changed
+ * still block every slot they overlap.
+ *
+ * @param slots - Candidate start times (ISO UTC), e.g. from {@link generateSlots}.
+ * @param booked - Start times already booked for the same therapy.
+ * @param durationMinutes - The therapy's current session length.
+ * @returns The slots that are still free, in their original order.
+ */
+export function removeBookedSlots(
+  slots: readonly string[],
+  booked: readonly string[],
+  durationMinutes: number,
+): string[] {
+  const length = durationMinutes * MINUTE_MS;
+  const bookedStarts = booked.map(Date.parse);
+  return slots.filter((slot) => {
+    const start = Date.parse(slot);
+    return bookedStarts.every(
+      (other) => start + length <= other || other + length <= start,
+    );
+  });
+}

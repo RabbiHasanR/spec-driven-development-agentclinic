@@ -1,6 +1,7 @@
 "use server";
 
-import { redirect } from "next/navigation";
+import { refresh } from "next/cache";
+import { redirect, RedirectType } from "next/navigation";
 import { createAppointment, listOpenSlots } from "@/lib/db/appointments";
 import { getDb } from "@/lib/db/client";
 import { getTherapyBySlug } from "@/lib/db/therapies";
@@ -42,11 +43,29 @@ export async function bookAppointment(
     values,
     listOpenSlots(db, therapy, new Date()),
   );
-  if (!validation.ok) return { values, errors: validation.errors };
+  if (!validation.ok) {
+    return validation.errors.startsAt
+      ? slotUnavailable(values, validation.errors)
+      : { values, errors: validation.errors };
+  }
 
   const result = createAppointment(db, therapy, validation.value);
   if (!result.ok) {
-    return { values, errors: { startsAt: SLOT_TAKEN_MESSAGE } };
+    return slotUnavailable(values, { startsAt: SLOT_TAKEN_MESSAGE });
   }
-  redirect(bookingPath(result.appointment.reference));
+  // Replace, so Back from the confirmation doesn't reopen the filled-in form.
+  redirect(bookingPath(result.appointment.reference), RedirectType.replace);
+}
+
+/**
+ * Form state for a slot that can't be booked. Refreshes the page so its slot
+ * list drops times taken since it loaded, and clears the stale choice so it
+ * isn't re-selected.
+ */
+function slotUnavailable(
+  values: BookingFormState["values"],
+  errors: BookingFormState["errors"],
+): BookingFormState {
+  refresh();
+  return { values: { ...values, startsAt: "" }, errors };
 }

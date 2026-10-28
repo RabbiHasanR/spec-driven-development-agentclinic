@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, expect, it } from "vitest";
-import { generateSlots } from "@/lib/booking/slots";
+import { generateSlots, removeBookedSlots } from "@/lib/booking/slots";
 
 // Wednesday 28 October 2026, 12:30 UTC.
 const NOW = new Date("2026-10-28T12:30:00.000Z");
@@ -80,5 +80,32 @@ describe("generateSlots", () => {
 
     expect(slots).toContain("2026-10-30T13:00:00.000Z"); // 09:00 EDT
     expect(slots).toContain("2026-11-02T14:00:00.000Z"); // 09:00 EST
+  });
+});
+
+describe("removeBookedSlots", () => {
+  const at = (time: string) => `2026-11-02T${time}:00.000Z`;
+  const HOURS = ["09:00", "10:00", "11:00", "12:00"].map(at);
+
+  it("removes a booked slot", () => {
+    expect(removeBookedSlots(HOURS, [at("10:00")], 60)).toEqual([
+      at("09:00"),
+      at("11:00"),
+      at("12:00"),
+    ]);
+  });
+
+  it("keeps slots that only touch a booking", () => {
+    expect(
+      removeBookedSlots([at("09:00"), at("11:00")], [at("10:00")], 60),
+    ).toEqual([at("09:00"), at("11:00")]);
+  });
+
+  it("removes every slot a booking overlaps after the session got longer", () => {
+    // Booked at 10:00 when the therapy was an hour; it's now 90 minutes, so
+    // 09:00–10:30 and 11:00–12:30 would both overlap 10:00–11:30.
+    const slots = [at("09:00"), at("11:00"), at("13:00")];
+
+    expect(removeBookedSlots(slots, [at("10:00")], 90)).toEqual([at("13:00")]);
   });
 });

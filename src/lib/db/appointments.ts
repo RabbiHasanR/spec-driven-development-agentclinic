@@ -1,6 +1,6 @@
 import { asc, eq } from "drizzle-orm";
 import { generateReference as defaultGenerateReference } from "@/lib/booking/reference";
-import { generateSlots } from "@/lib/booking/slots";
+import { generateSlots, removeBookedSlots } from "@/lib/booking/slots";
 import type { BookingInput } from "@/lib/booking/validate";
 import type { Db } from "./connection";
 import { appointments, therapies } from "./schema";
@@ -18,12 +18,15 @@ export type CreateAppointmentResult =
  *
  * The message names every column of the violated index, e.g.
  * "UNIQUE constraint failed: appointments.therapy_id, appointments.starts_at".
+ * Drizzle throws the driver's error as-is here, but some of its sessions wrap
+ * it in a `DrizzleQueryError` with the original as `cause`; both are handled.
  */
-function isUniqueViolation(error: unknown, column: string): boolean {
+export function isUniqueViolation(error: unknown, column: string): boolean {
+  const cause = error instanceof Error && error.cause ? error.cause : error;
   return (
-    error instanceof Error &&
-    (error as { code?: string }).code === "SQLITE_CONSTRAINT_UNIQUE" &&
-    error.message.includes(column)
+    cause instanceof Error &&
+    (cause as { code?: string }).code === "SQLITE_CONSTRAINT_UNIQUE" &&
+    cause.message.includes(column)
   );
 }
 
@@ -39,13 +42,14 @@ export function listBookedSlots(db: Db, therapyId: number): string[] {
 }
 
 /**
- * A therapy's bookable start times right now: its generated slots minus the
- * booked ones.
+ * A therapy's bookable start times right now: its generated slots minus any
+ * that overlap a booking.
  */
 export function listOpenSlots(db: Db, therapy: Therapy, now: Date): string[] {
-  const booked = new Set(listBookedSlots(db, therapy.id));
-  return generateSlots(now, therapy.durationMinutes).filter(
-    (slot) => !booked.has(slot),
+  return removeBookedSlots(
+    generateSlots(now, therapy.durationMinutes),
+    listBookedSlots(db, therapy.id),
+    therapy.durationMinutes,
   );
 }
 
