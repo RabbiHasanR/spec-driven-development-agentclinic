@@ -11,9 +11,15 @@
 Requires Node.js LTS (24.x).
 
 ```bash
-npm ci        # install exact locked dependencies
-npm run dev   # start the dev server at http://localhost:3000
+npm ci                # install exact locked dependencies
+cp .env.example .env  # configure DATABASE_URL (SQLite file path)
+npm run db:migrate    # create the database file and apply the schema
+npm run db:seed       # load the ailment and therapy catalog
+npm run dev           # start the dev server at http://localhost:3000
 ```
+
+Pages: `/` (home), `/ailments` (catalog), `/ailments/<slug>` (ailment and its
+therapies).
 
 ## Scripts
 
@@ -27,6 +33,9 @@ npm run dev   # start the dev server at http://localhost:3000
 | `npm run format:check` | Check formatting without writing              |
 | `npm test`             | Run the Vitest suite once                     |
 | `npm run test:watch`   | Run Vitest in watch mode                      |
+| `npm run db:generate`  | Generate a SQL migration from the schema      |
+| `npm run db:migrate`   | Apply pending migrations to the database      |
+| `npm run db:seed`      | Upsert the catalog seed data (idempotent)     |
 
 ## Project layout
 
@@ -34,21 +43,33 @@ npm run dev   # start the dev server at http://localhost:3000
 src/
 ├── app/                  # Routing only: thin route files and layouts
 │   ├── layout.tsx        # Root <html>/<body>, metadata, global CSS import
+│   ├── not-found.tsx     # 404 for unmatched URLs (adds <MainLayout> itself)
 │   └── (site)/           # Route group (not part of the URL)
 │       ├── layout.tsx    # Wraps public pages in <MainLayout>
-│       └── page.tsx      # "/" → renders <HomePage />
+│       ├── error.tsx     # Error boundary with a retry button
+│       ├── page.tsx      # "/" → renders <HomePage />
+│       └── ailments/     # "/ailments" and "/ailments/[slug]" (+ loading, not-found)
 ├── components/           # Shared UI
-│   └── layout/           # MainLayout = Header + MainContent + Footer
+│   ├── layout/           # MainLayout = Header (+ NavLink) + MainContent + Footer
+│   ├── catalog/          # AilmentCard, TherapyCard
+│   └── ui/               # PageHeader, BackLink
 ├── views/                # Page components, one folder per page
-│   └── home/
-├── lib/                  # Shared constants and helpers (site.ts)
+│   ├── home/  ailments/  ailment-detail/
+│   └── error/  not-found/
+├── lib/                  # Shared helpers: site.ts, routes.ts (all URL paths)
+│   └── db/               # Drizzle schema, client, queries, migrator, seed, types
 └── styles/               # All CSS
-    ├── globals.css       # Tailwind + shared color tokens
+    ├── globals.css       # Tailwind, color tokens, `card` / `focus-ring` utilities
     └── components/       # CSS Modules for src/components/
+drizzle/                  # Generated SQL migrations (committed)
+scripts/                  # db:migrate and db:seed entry points (run with tsx)
 tests/                    # All tests, mirroring src/
 ├── setup.ts
-├── components/layout/
-└── views/home/
+├── helpers/              # In-memory test DB and fixtures
+├── app/                  # Route-level tests (metadata, notFound)
+├── lib/
+├── components/
+└── views/
 specs/                    # Mission, tech stack, roadmap, per-phase specs
 ```
 

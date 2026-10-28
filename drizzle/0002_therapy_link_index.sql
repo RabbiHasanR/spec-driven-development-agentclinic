@@ -1,0 +1,1 @@
+CREATE INDEX `ailment_therapy_therapy_id_idx` ON `ailment_therapy` (`therapy_id`);

@@ -1,4 +1,4 @@
-import { existsSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -29,5 +29,18 @@ describe("Project conventions", () => {
 
   it("has no leftover src/index.ts from the old tsc scaffold", () => {
     expect(existsSync(`${SRC_DIR}/index.ts`)).toBe(false);
+  });
+
+  it("imports Drizzle and better-sqlite3 only from src/lib/db/", () => {
+    expect(
+      srcFiles.filter(
+        (file) =>
+          /\.tsx?$/.test(file) &&
+          !file.startsWith("lib/db/") &&
+          /from "(drizzle-orm|better-sqlite3)/.test(
+            readFileSync(`${SRC_DIR}/${file}`, "utf8"),
+          ),
+      ),
+    ).toEqual([]);
   });
 });

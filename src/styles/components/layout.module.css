@@ -25,6 +25,8 @@
 .headerInner {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
   min-height: 3.5rem;
 }
 
@@ -39,15 +41,49 @@
   text-decoration: none;
 }
 
+.navList {
+  display: flex;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* 44×44px minimum tap target. */
+.navLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  padding-inline: 0.5rem;
+  color: var(--site-text);
+  text-decoration: none;
+}
+
+.navLink[aria-current="page"] {
+  font-weight: 600;
+  color: var(--site-accent);
+  box-shadow: inset 0 -2px 0 var(--site-accent);
+}
+
 .brand:hover,
-.brand:focus-visible {
+.navLink:hover {
   text-decoration: underline;
 }
 
+/* Same focus indicator as the focus-ring utility in globals.css. */
+.brand:focus-visible,
+.navLink:focus-visible {
+  outline: 2px solid var(--site-accent);
+  outline-offset: 2px;
+}
+
+/* Top-aligned: centering left catalog pages with a large gap above them. */
 .main {
   display: flex;
   flex: 1;
-  align-items: center;
+  align-items: flex-start;
   padding-block: 2rem;
 }
 

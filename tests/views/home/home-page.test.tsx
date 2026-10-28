@@ -17,9 +17,17 @@ describe("Home page", () => {
 
     const items = within(screen.getByRole("list")).getAllByRole("listitem");
     expect(items.map((item) => item.textContent)).toEqual([
-      "Browse ailments",
-      "Discover therapies",
-      "Book appointments",
+      "Browse ailments→",
+      "Discover therapies (on each ailment’s page)",
+      "Book appointments (coming soon)",
     ]);
+  });
+
+  it("links Browse ailments to the ailments catalog", () => {
+    render(<HomePage />);
+
+    expect(
+      screen.getByRole("link", { name: /Browse ailments/ }),
+    ).toHaveAttribute("href", "/ailments");
   });
 });

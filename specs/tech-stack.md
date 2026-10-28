@@ -29,8 +29,8 @@ Why Next.js:
 | Framework   | Next.js (App Router) on Node.js         |
 | UI          | React (via Next.js) + Tailwind CSS      |
 | Backend     | Next.js Route Handlers / Server Actions |
-| Data access | TypeScript ORM (e.g. Prisma or Drizzle) |
-| Database    | TBD — chosen in a later phase           |
+| Data access | Drizzle ORM + drizzle-kit migrations    |
+| Database    | SQLite (`better-sqlite3`)               |
 | Lint/format | ESLint (Next.js config) + Prettier      |
 | Tests       | Vitest + React Testing Library (jsdom)  |
 
@@ -41,6 +41,22 @@ Why Next.js:
   `eslint-config-prettier` to avoid rule conflicts.
 - **Tests:** Vitest + React Testing Library — fast and TypeScript-native.
 
+## Decided in Phase 1
+
+- **ORM:** Drizzle ORM with `drizzle-kit` for SQL migrations — TypeScript-first,
+  lightweight, and close to SQL.
+- **Database:** SQLite via `better-sqlite3`. A file DB needs no infrastructure,
+  handles Phase 2 writes, and Drizzle keeps a later move to Postgres simple.
+- **Config:** the DB file path comes from `DATABASE_URL` (see `.env.example`);
+  the file lives in the gitignored `data/` directory.
+- **Rendering:** Server Components read the DB directly. With Cache Components
+  enabled, DB reads call `connection()` so they run per request, inside a
+  `loading.tsx` Suspense boundary; the build never touches the database.
+- **DB safety:** only `npm run db:migrate` creates the database file; the app
+  and seed refuse a missing one. `migrateDb` turns foreign keys off around
+  migrations (SQLite ignores the pragma inside Drizzle's transaction, so table
+  rebuilds would cascade-delete rows) and runs `foreign_key_check` after.
+
 ## Project conventions
 
 Every phase follows this layout. Update this section when a convention changes.
@@ -49,9 +65,12 @@ Every phase follows this layout. Update this section when a convention changes.
 | ------------------------ | --------------------------------------------------------------------- |
 | `src/app/`               | Routing only: thin `page.tsx`/`layout.tsx` files, grouped by audience |
 | `src/app/(site)/`        | Public pages, wrapped in `MainLayout`                                 |
-| `src/views/<page>/`      | Page components rendered by the matching route                        |
-| `src/components/<area>/` | Shared UI components                                                  |
+| `src/views/<page-name>/` | Page components rendered by the matching route                        |
+| `src/components/<area>/` | Shared UI components (`ui/` holds generic building blocks)            |
 | `src/lib/`               | Shared constants and helpers                                          |
+| `src/lib/db/`            | **All DB code**: schema, client, query functions, migrator, seed      |
+| `drizzle/`               | Generated SQL migrations (`npm run db:generate`); committed           |
+| `scripts/`               | CLI entry points run with `tsx` (e.g. `db:migrate`, `db:seed`)        |
 | `src/styles/`            | **All CSS**: `globals.css` plus CSS Modules                           |
 | `src/styles/components/` | CSS Modules for `src/components/` (`<area>.module.css`)               |
 | `src/styles/views/`      | CSS Modules for `src/views/` (`<page>.module.css`), when needed       |
@@ -61,11 +80,29 @@ Every phase follows this layout. Update this section when a convention changes.
 Rules:
 
 - New page: `src/app/(site)/<route>/page.tsx` renders a component from
-  `src/views/<route>/`; its test goes in `tests/views/<route>/`.
+  `src/views/<page-name>/` (named for the page, e.g. `ailment-detail/` for
+  `ailments/[slug]/`); its test goes in `tests/views/<page-name>/`. Route-level
+  behavior (metadata, `notFound()`) is tested in `tests/app/`, mirroring the
+  route path.
 - Styles: Tailwind utilities in components, or a CSS Module in `src/styles/`
   imported via `@/styles/…`. Never link CSS from `public/`.
+- Colors come only from the `--site-*` tokens in `globals.css`. Tailwind uses
+  them as `text-accent`, `bg-surface`, `ring-line`, `text-muted`, etc.; CSS
+  Modules as `var(--site-*)`. Tokens switch with the color scheme, so don't
+  write `dark:` variants or raw palette colors (`teal-800`, `slate-500`).
+- Reuse the `card` and `focus-ring` utilities (in `globals.css`) and the
+  `src/components/ui/` components (`PageHeader`, `BackLink`) instead of
+  repeating class strings.
+- URL paths live in `src/lib/routes.ts` (`ROUTES`, `ailmentPath()`); never
+  type a path string in a component.
+- UI code imports row types from `src/lib/db/types.ts`, never the schema.
 - Don't create `src/pages/` — it's reserved by the Next.js Pages Router.
 - Tests are named `*.test.ts(x)` and import source via `@/…`.
+- Only `src/lib/db/` imports Drizzle or `better-sqlite3`. Query functions take
+  the `Db` as their first argument; routes pass `getDb()` (server-only), tests
+  pass an in-memory DB from `tests/helpers/db.ts`.
+- Views take data as props and stay synchronous, so tests render them directly;
+  route files load the data.
 
 ## Validation
 
@@ -101,6 +138,4 @@ all feature specs reference.
 ## Deferred decisions
 
 - Component library (if any) on top of Tailwind.
-- ORM choice (Prisma vs. Drizzle).
-- Database engine.
 - Hosting/deploy target.

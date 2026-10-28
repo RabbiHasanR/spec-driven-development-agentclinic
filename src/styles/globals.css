@@ -1,13 +1,21 @@
 @import "tailwindcss";
 
-/* Design tokens shared by CSS Modules (which can't declare :root themselves). */
+/*
+ * Design tokens: the single source of site colors. CSS Modules use them as
+ * var(--site-*); Tailwind exposes them as colors below (text-accent,
+ * bg-surface, ring-line, …). They switch with the color scheme, so components
+ * need no dark: variants.
+ */
 :root {
   --site-bg: #f0fdfa;
   --site-surface: #ffffff;
   --site-text: #1e293b;
+  --site-text-soft: #475569;
   --site-muted: #64748b;
   --site-accent: #115e59;
+  --site-on-accent: #ffffff;
   --site-border: #ccfbf1;
+  --site-border-strong: #5eead4;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -15,10 +23,38 @@
     --site-bg: #020617;
     --site-surface: #0f172a;
     --site-text: #f1f5f9;
+    --site-text-soft: #cbd5e1;
     --site-muted: #94a3b8;
     --site-accent: #5eead4;
+    --site-on-accent: #042f2e;
     --site-border: #1e293b;
+    --site-border-strong: #0f766e;
   }
+}
+
+@theme inline {
+  --color-canvas: var(--site-bg);
+  --color-surface: var(--site-surface);
+  --color-ink: var(--site-text);
+  --color-ink-soft: var(--site-text-soft);
+  --color-muted: var(--site-muted);
+  --color-accent: var(--site-accent);
+  --color-on-accent: var(--site-on-accent);
+  --color-line: var(--site-border);
+  --color-line-strong: var(--site-border-strong);
+}
+
+/* Card surface shared by catalog cards and home page links (no padding). */
+@utility card {
+  @apply rounded-xl bg-surface shadow-sm ring-1 ring-line;
+}
+
+/*
+ * Keyboard focus indicator. A real outline (not a ring) stays visible in
+ * Windows High Contrast / forced-colors mode.
+ */
+@utility focus-ring {
+  @apply focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent;
 }
 
 body {
