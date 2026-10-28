@@ -66,13 +66,12 @@ src/
 │   ├── (site)/           # Route group (not part of the URL)
 │       ├── layout.tsx    # Wraps public pages in <MainLayout>
 │       ├── error.tsx     # Error boundary with a retry button
-│       ├── loading.tsx   # Shared loading state for every public page
 │       ├── page.tsx      # "/" → renders <HomePage />
-│       ├── ailments/     # "/ailments" and "/ailments/[slug]" (+ not-found)
-│       ├── therapies/    # "/therapies/[slug]/book" (+ not-found)
-│       └── bookings/     # "/bookings/[reference]" (+ not-found)
-│   └── (staff)/          # Staff pages (own layout, loading, error)
-│       └── dashboard/    # "/dashboard"
+│       ├── ailments/     # "/ailments" and "/ailments/[slug]" (+ loading, not-found)
+│       ├── therapies/    # "/therapies/[slug]/book" (+ loading, not-found)
+│       └── bookings/     # "/bookings/[reference]" (+ loading, not-found)
+│   └── (staff)/          # Staff pages (own layout and error boundary)
+│       └── dashboard/    # "/dashboard" (+ loading)
 ├── components/           # Shared UI
 │   ├── layout/           # MainLayout = Header (+ NavLink) + MainContent + Footer
 │   ├── catalog/          # AilmentCard, TherapyCard

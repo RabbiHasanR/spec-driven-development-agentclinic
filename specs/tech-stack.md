@@ -117,9 +117,15 @@ Rules:
 - Reuse the `card` and `focus-ring` utilities (in `globals.css`) and the
   `src/components/ui/` components (`PageHeader`, `Section`, `Button`,
   `ArrowLink`, `BackLink`) instead of repeating class strings.
-- Every route group has one `loading.tsx` and one `error.tsx`, re-exporting
-  `LoadingPage` (`src/views/loading/`) and `ErrorBoundary`
-  (`src/views/error/`); don't add per-route copies.
+- Every page that reads per-request data (calls `connection()`) has a
+  `loading.tsx` in its own folder that re-exports `LoadingPage` from
+  `src/views/loading/`. A boundary in a parent folder or route group isn't
+  enough: on a client navigation the parent segments stay mounted, so only a
+  boundary at the page's own segment can show while it loads, and Next.js dev
+  reports the route as blocking ("uncached data … outside of `<Suspense>`").
+  Enforced by `tests/conventions.test.ts`.
+- Each route group has one `error.tsx` that re-exports `ErrorBoundary` from
+  `src/views/error/`.
 - URL paths live in `src/lib/routes.ts` (`ROUTES`, `ailmentPath()`,
   `bookTherapyPath()`, `bookingPath()`); never type a path string in a
   component.

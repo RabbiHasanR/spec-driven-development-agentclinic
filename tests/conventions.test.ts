@@ -62,6 +62,20 @@ describe("Project conventions", () => {
     ).toEqual([]);
   });
 
+  it("gives every page that reads per-request data its own loading.tsx", () => {
+    // A boundary higher up doesn't cover client navigations into the page,
+    // so Next.js dev flags the route as blocking (see specs/tech-stack.md).
+    const pagesWithoutLoading = sourcesMatching(/\bconnection\(\)/)
+      .filter((file) => file.startsWith("app/") && file.endsWith("/page.tsx"))
+      .filter(
+        (file) =>
+          !existsSync(
+            `${SRC_DIR}/${file.replace(/page\.tsx$/, "loading.tsx")}`,
+          ),
+      );
+    expect(pagesWithoutLoading).toEqual([]);
+  });
+
   it("imports Drizzle and better-sqlite3 only from src/lib/db/", () => {
     expect(
       srcFiles.filter(

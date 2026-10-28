@@ -16,7 +16,7 @@ All notable changes to AgentClinic, grouped by date (newest first).
   phones). The header links to it.
 - Fixed header labels breaking mid-word on narrow phones.
 - Added shared `Button`, `ArrowLink`, `Section`, and `FieldError` components,
-  a `danger` color token, and one shared loading page.
+  a `danger` color token, and a shared `LoadingPage` view.
 - Updated the home page now that booking is live, recorded the Phase 2
   decisions in the tech stack, and marked roadmap Phase 2 as complete.
 - Fixed a taken slot staying offered and selected after a "no longer
@@ -26,6 +26,9 @@ All notable changes to AgentClinic, grouped by date (newest first).
   error after a failed booking, and put name and email before the slot list.
 - Linked the home page's "Book appointments" item, and made "Busiest therapy"
   count by therapy and show no leader on a tie.
+- Gave every data-reading page its own loading state, fixing Next.js dev
+  "uncached data … outside of `<Suspense>`" errors on all catalog, booking,
+  and dashboard routes, and added a convention test to keep it that way.
 - Kept the database layer free of booking logic, moved `TextField` and
   `FieldError` into the shared UI components, shared one error boundary
   across route groups, and added convention tests for paths, colors, and
