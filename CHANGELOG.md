@@ -4,6 +4,17 @@ All notable changes to AgentClinic, grouped by date (newest first).
 
 ## 2026-10-28
 
+- Added the Phase 1 care catalog spec (requirements, plan, validation).
+- Added a SQLite database with Drizzle ORM: schema, migrations, an idempotent
+  seed of six ailments and eight therapies, and `db:*` scripts.
+- Added the ailments list (`/ailments`) and ailment detail pages
+  (`/ailments/[slug]`) showing the therapies that treat each ailment, with a
+  not-found page for unknown ailments.
+- Added an "Ailments" link to the header and linked "Browse ailments" from the
+  home page; page titles now read "Page · AgentClinic".
+- Top-aligned page content in the main layout.
+- Recorded the ORM and database decisions in the tech stack and marked roadmap
+  Phase 1 as complete.
 - Defined the Vitest suite as the validation gate in the tech stack.
 - Added tests for site metadata and project directory conventions.
 - Added a mobile-first responsive design standard to the mission, roadmap, and

@@ -29,8 +29,8 @@ Why Next.js:
 | Framework   | Next.js (App Router) on Node.js         |
 | UI          | React (via Next.js) + Tailwind CSS      |
 | Backend     | Next.js Route Handlers / Server Actions |
-| Data access | TypeScript ORM (e.g. Prisma or Drizzle) |
-| Database    | TBD — chosen in a later phase           |
+| Data access | Drizzle ORM + drizzle-kit migrations    |
+| Database    | SQLite (`better-sqlite3`)               |
 | Lint/format | ESLint (Next.js config) + Prettier      |
 | Tests       | Vitest + React Testing Library (jsdom)  |
 
@@ -40,6 +40,18 @@ Why Next.js:
 - **Lint/format:** ESLint with `eslint-config-next`, Prettier for formatting,
   `eslint-config-prettier` to avoid rule conflicts.
 - **Tests:** Vitest + React Testing Library — fast and TypeScript-native.
+
+## Decided in Phase 1
+
+- **ORM:** Drizzle ORM with `drizzle-kit` for SQL migrations — TypeScript-first,
+  lightweight, and close to SQL.
+- **Database:** SQLite via `better-sqlite3`. A file DB needs no infrastructure,
+  handles Phase 2 writes, and Drizzle keeps a later move to Postgres simple.
+- **Config:** the DB file path comes from `DATABASE_URL` (see `.env.example`);
+  the file lives in the gitignored `data/` directory.
+- **Rendering:** Server Components read the DB directly. With Cache Components
+  enabled, DB reads run per request (`connection()` or awaited `params`) inside
+  a `loading.tsx` Suspense boundary.
 
 ## Project conventions
 
@@ -52,6 +64,9 @@ Every phase follows this layout. Update this section when a convention changes.
 | `src/views/<page>/`      | Page components rendered by the matching route                        |
 | `src/components/<area>/` | Shared UI components                                                  |
 | `src/lib/`               | Shared constants and helpers                                          |
+| `src/lib/db/`            | **All DB code**: schema, client, query functions, migrator, seed      |
+| `drizzle/`               | Generated SQL migrations (`npm run db:generate`); committed           |
+| `scripts/`               | CLI entry points run with `tsx` (e.g. `db:migrate`, `db:seed`)        |
 | `src/styles/`            | **All CSS**: `globals.css` plus CSS Modules                           |
 | `src/styles/components/` | CSS Modules for `src/components/` (`<area>.module.css`)               |
 | `src/styles/views/`      | CSS Modules for `src/views/` (`<page>.module.css`), when needed       |
@@ -66,6 +81,11 @@ Rules:
   imported via `@/styles/…`. Never link CSS from `public/`.
 - Don't create `src/pages/` — it's reserved by the Next.js Pages Router.
 - Tests are named `*.test.ts(x)` and import source via `@/…`.
+- Only `src/lib/db/` imports Drizzle or `better-sqlite3`. Query functions take
+  the `Db` as their first argument; routes pass `getDb()` (server-only), tests
+  pass an in-memory DB from `tests/helpers/db.ts`.
+- Views take data as props and stay synchronous, so tests render them directly;
+  route files load the data.
 
 ## Validation
 
@@ -101,6 +121,4 @@ all feature specs reference.
 ## Deferred decisions
 
 - Component library (if any) on top of Tailwind.
-- ORM choice (Prisma vs. Drizzle).
-- Database engine.
 - Hosting/deploy target.

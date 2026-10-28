@@ -11,9 +11,15 @@
 Requires Node.js LTS (24.x).
 
 ```bash
-npm ci        # install exact locked dependencies
-npm run dev   # start the dev server at http://localhost:3000
+npm ci                # install exact locked dependencies
+cp .env.example .env  # configure DATABASE_URL (SQLite file path)
+npm run db:migrate    # create/upgrade the database schema
+npm run db:seed       # load the ailment and therapy catalog
+npm run dev           # start the dev server at http://localhost:3000
 ```
+
+Pages: `/` (home), `/ailments` (catalog), `/ailments/<slug>` (ailment and its
+therapies).
 
 ## Scripts
 
@@ -27,6 +33,9 @@ npm run dev   # start the dev server at http://localhost:3000
 | `npm run format:check` | Check formatting without writing              |
 | `npm test`             | Run the Vitest suite once                     |
 | `npm run test:watch`   | Run Vitest in watch mode                      |
+| `npm run db:generate`  | Generate a SQL migration from the schema      |
+| `npm run db:migrate`   | Apply pending migrations to the database      |
+| `npm run db:seed`      | Upsert the catalog seed data (idempotent)     |
 
 ## Project layout
 
@@ -36,19 +45,28 @@ src/
 │   ├── layout.tsx        # Root <html>/<body>, metadata, global CSS import
 │   └── (site)/           # Route group (not part of the URL)
 │       ├── layout.tsx    # Wraps public pages in <MainLayout>
-│       └── page.tsx      # "/" → renders <HomePage />
+│       ├── page.tsx      # "/" → renders <HomePage />
+│       └── ailments/     # "/ailments" and "/ailments/[slug]" (+ loading, not-found)
 ├── components/           # Shared UI
-│   └── layout/           # MainLayout = Header + MainContent + Footer
+│   ├── layout/           # MainLayout = Header + MainContent + Footer
+│   └── catalog/          # AilmentCard, TherapyCard, BackLink
 ├── views/                # Page components, one folder per page
-│   └── home/
+│   ├── home/
+│   ├── ailments/
+│   └── ailment-detail/
 ├── lib/                  # Shared constants and helpers (site.ts)
+│   └── db/               # Drizzle schema, client, queries, migrator, seed
 └── styles/               # All CSS
     ├── globals.css       # Tailwind + shared color tokens
     └── components/       # CSS Modules for src/components/
+drizzle/                  # Generated SQL migrations (committed)
+scripts/                  # db:migrate and db:seed entry points (run with tsx)
 tests/                    # All tests, mirroring src/
 ├── setup.ts
-├── components/layout/
-└── views/home/
+├── helpers/              # In-memory test DB and fixtures
+├── lib/db/
+├── components/
+└── views/
 specs/                    # Mission, tech stack, roadmap, per-phase specs
 ```
 

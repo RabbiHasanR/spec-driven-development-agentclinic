@@ -8,7 +8,7 @@
    `@types/better-sqlite3`.
 3. Add `src/lib/db/client.ts`: create the Drizzle client from `DATABASE_URL`;
    mark it server-only.
-4. Add `drizzle.config.ts`, `.env.example` (`DATABASE_URL=file:./data/agentclinic.db`),
+4. Add `drizzle.config.ts`, `.env.example` (`DATABASE_URL=data/agentclinic.db`),
    and gitignore the DB file.
 5. Add scripts: `db:generate`, `db:migrate`, `db:seed`.
 6. Add a test helper in `tests/helpers/` that builds an in-memory DB with

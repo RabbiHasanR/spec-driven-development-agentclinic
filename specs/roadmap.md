@@ -13,7 +13,7 @@ every phase's UI meets the
 - Confirm it runs and renders a placeholder home page in the browser.
 - Responsive main layout (header, main, footer) from phone to desktop.
 
-## Phase 1 — Care catalog: ailments and therapies
+## Phase 1 — Care catalog: ailments and therapies ✅ Complete
 
 Read-only browsing: agents find an ailment and the therapies that treat it.
 

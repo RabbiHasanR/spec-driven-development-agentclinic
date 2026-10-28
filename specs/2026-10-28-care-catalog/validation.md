@@ -40,7 +40,10 @@ Views:
    listed.
 3. Open an ailment: its description and matching therapies show, and the tab
    title is the ailment's name.
-4. Visit `/ailments/does-not-exist`: a 404 page renders.
+4. Visit `/ailments/does-not-exist`: the "Ailment not found" page renders with
+   a `noindex` robots tag. (The HTTP status is 200: the `loading.tsx` fallback
+   starts streaming before `notFound()` runs. See Next.js `loading.js` →
+   Status codes.)
 5. In devtools device mode:
    - **320px:** ailments are in a single column, therapy cards are stacked, and
      there is no horizontal scroll.
