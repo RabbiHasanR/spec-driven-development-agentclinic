@@ -4,6 +4,15 @@ All notable changes to AgentClinic, grouped by date (newest first).
 
 ## 2026-10-28
 
+- Defined the Vitest suite as the validation gate in the tech stack.
+- Added tests for site metadata and project directory conventions.
+- Added a mobile-first responsive design standard to the mission, roadmap, and
+  feature specs, and made the main layout responsive to match.
+- Restructured the roadmap into two phases: a read-only care catalog (ailments
+  and therapies) and booking and clinic operations (booking, staff dashboard,
+  polish).
+- Added a manual `/changelog` skill and this changelog, generated from the git
+  history.
 - Added the Phase 1 care catalog spec (requirements, plan, validation).
 - Added a SQLite database with Drizzle ORM: schema, migrations, an idempotent
   seed of six ailments and eight therapies, and `db:*` scripts.
@@ -30,15 +39,6 @@ All notable changes to AgentClinic, grouped by date (newest first).
   helpers, and marked the current page in the header navigation.
 - Added a site-styled 404 page for unknown URLs and accessibility fixes
   (decorative arrows hidden, card heading levels, high-contrast focus).
-- Defined the Vitest suite as the validation gate in the tech stack.
-- Added tests for site metadata and project directory conventions.
-- Added a mobile-first responsive design standard to the mission, roadmap, and
-  feature specs, and made the main layout responsive to match.
-- Restructured the roadmap into two phases: a read-only care catalog (ailments
-  and therapies) and booking and clinic operations (booking, staff dashboard,
-  polish).
-- Added a manual `/changelog` skill and this changelog, generated from the git
-  history.
 
 ## 2026-10-27
 
