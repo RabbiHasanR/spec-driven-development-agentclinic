@@ -13,3 +13,12 @@ export function listTherapiesForAilment(db: Db, ailmentId: number): Therapy[] {
     .orderBy(asc(therapies.name))
     .all();
 }
+
+/**
+ * Finds one therapy by its URL slug.
+ *
+ * @returns The therapy, or `undefined` if no therapy has that slug.
+ */
+export function getTherapyBySlug(db: Db, slug: string): Therapy | undefined {
+  return db.select().from(therapies).where(eq(therapies.slug, slug)).get();
+}

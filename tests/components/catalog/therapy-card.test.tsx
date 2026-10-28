@@ -15,4 +15,12 @@ describe("TherapyCard", () => {
     ).toBeInTheDocument();
     expect(screen.getByText("30 min")).toBeInTheDocument();
   });
+
+  it("links to the therapy's booking page", () => {
+    render(<TherapyCard therapy={THERAPIES[1]} />);
+
+    expect(
+      screen.getByRole("link", { name: "Book Grounding Session" }),
+    ).toHaveAttribute("href", "/therapies/grounding-session/book");
+  });
 });

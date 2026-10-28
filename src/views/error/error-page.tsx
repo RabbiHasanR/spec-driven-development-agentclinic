@@ -1,4 +1,4 @@
-import { PageHeader } from "@/components/ui";
+import { Button, PageHeader } from "@/components/ui";
 
 /** Fallback for unexpected errors; server details stay in the server logs. */
 export function ErrorPage({ onRetry }: { onRetry: () => void }) {
@@ -9,13 +9,9 @@ export function ErrorPage({ onRetry }: { onRetry: () => void }) {
         lead="The clinic hit a snag loading this page. Please try again."
         centered
       />
-      <button
-        type="button"
-        onClick={onRetry}
-        className="mt-6 inline-flex min-h-11 items-center rounded-lg bg-accent px-5 font-medium text-on-accent focus-ring hover:opacity-90"
-      >
+      <Button onClick={onRetry} className="mt-6">
         Try again
-      </button>
+      </Button>
     </div>
   );
 }
