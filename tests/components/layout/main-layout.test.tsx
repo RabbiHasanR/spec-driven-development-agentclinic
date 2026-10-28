@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { MainLayout } from "@/components/layout";
 
@@ -19,5 +19,19 @@ describe("MainLayout", () => {
     );
     expect(main).toHaveTextContent("Page content");
     expect(footer).toHaveTextContent("AgentClinic");
+  });
+
+  it("links to the ailments catalog from the main navigation", () => {
+    render(
+      <MainLayout>
+        <p>Page content</p>
+      </MainLayout>,
+    );
+
+    const nav = screen.getByRole("navigation", { name: "Main" });
+    expect(within(nav).getByRole("link", { name: "Ailments" })).toHaveAttribute(
+      "href",
+      "/ailments",
+    );
   });
 });

@@ -3,7 +3,7 @@ import { SITE } from "@/lib/site";
 import "@/styles/globals.css";
 
 export const metadata: Metadata = {
-  title: SITE.name,
+  title: { default: SITE.name, template: `%s · ${SITE.name}` },
   description: SITE.description,
 };
 
