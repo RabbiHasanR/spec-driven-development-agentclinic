@@ -13,20 +13,26 @@ every phase's UI meets the
 - Confirm it runs and renders a placeholder home page in the browser.
 - Responsive main layout (header, main, footer) from phone to desktop.
 
-## Phase 1 — Browse ailments
+## Phase 1 — Care catalog: ailments and therapies
+
+Read-only browsing: agents find an ailment and the therapies that treat it.
+
+### Browse ailments
 
 - Model and seed a few **ailments**.
 - List ailments on a page, with a detail view.
 - Ailment list is a single column on phones and a multi-column grid on wider
   screens.
 
-## Phase 2 — Therapies, booking, dashboard, and polish
-
 ### Discover therapies
 
 - Model **therapies** and link them to ailments.
 - Show matching therapies on each ailment's detail page.
 - Therapy cards stack on phones and sit side by side on wider screens.
+
+## Phase 2 — Booking and clinic operations
+
+Agents book care; staff run the schedule; the whole site gets polished.
 
 ### Book an appointment
 
