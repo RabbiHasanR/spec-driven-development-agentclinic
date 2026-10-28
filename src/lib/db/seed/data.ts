@@ -1,6 +1,11 @@
 import type { NewAilment, NewTherapy } from "../schema";
 
-export const SEED_THERAPIES: NewTherapy[] = [
+export type SeedTherapy = NewTherapy;
+
+/** An ailment plus the slugs of the therapies that treat it. */
+export type SeedAilment = NewAilment & { therapySlugs: string[] };
+
+export const SEED_THERAPIES: SeedTherapy[] = [
   {
     slug: "context-decompression",
     name: "Context Decompression",
@@ -50,9 +55,6 @@ export const SEED_THERAPIES: NewTherapy[] = [
     durationMinutes: 90,
   },
 ];
-
-/** An ailment plus the slugs of the therapies that treat it. */
-export type SeedAilment = NewAilment & { therapySlugs: string[] };
 
 export const SEED_AILMENTS: SeedAilment[] = [
   {

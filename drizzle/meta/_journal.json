@@ -15,6 +15,13 @@
       "when": 1793203878706,
       "tag": "0001_therapies",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1793205309823,
+      "tag": "0002_therapy_link_index",
+      "breakpoints": true
     }
   ]
 }

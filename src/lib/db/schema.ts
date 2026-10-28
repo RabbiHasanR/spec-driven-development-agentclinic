@@ -1,4 +1,5 @@
 import {
+  index,
   integer,
   primaryKey,
   sqliteTable,
@@ -32,7 +33,12 @@ export const ailmentTherapies = sqliteTable(
       .notNull()
       .references(() => therapies.id, { onDelete: "cascade" }),
   },
-  (table) => [primaryKey({ columns: [table.ailmentId, table.therapyId] })],
+  (table) => [
+    primaryKey({ columns: [table.ailmentId, table.therapyId] }),
+    // The primary key covers lookups by ailment; this covers lookups and
+    // cascading deletes by therapy.
+    index("ailment_therapy_therapy_id_idx").on(table.therapyId),
+  ],
 );
 
 export type Ailment = typeof ailments.$inferSelect;
