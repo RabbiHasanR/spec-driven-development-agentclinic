@@ -21,6 +21,8 @@ In scope:
   centralized `tests/` directory.
 - Main layout (`Header`, `MainContent`, `Footer`) styled with a CSS Module.
 - All CSS centralized in `src/styles/`.
+- Responsive, mobile-first layout and home page per
+  [tech-stack.md → Responsive design](../tech-stack.md#responsive-design).
 - Directory structure: `app/` for routing, `views/` for pages, `components/` for
   shared UI, `lib/` for shared constants.
 

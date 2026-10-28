@@ -74,3 +74,14 @@
      `src/styles/components/layout.module.css`
 4. Record these conventions in `specs/tech-stack.md` so later phases follow them.
 5. Update `README.md` project layout.
+
+## 9. Responsive design
+
+1. Add the responsive design standard to `specs/tech-stack.md` and reference it
+   from the mission, roadmap, and this spec.
+2. Rewrite `src/styles/components/layout.module.css` mobile-first: tighter
+   padding on phones, growing at `sm`/`md`; long text wraps.
+3. Make the header home link a 44px-tall tap target.
+4. Export `viewport` (`themeColor`, `colorScheme`) from `src/app/layout.tsx`;
+   keep the default `width=device-width`, never disable zoom.
+5. Check the home page at 320px, 768px, and 1280px.
