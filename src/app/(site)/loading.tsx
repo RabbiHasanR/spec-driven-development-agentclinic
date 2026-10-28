@@ -1,7 +1,1 @@
-export default function Loading() {
-  return (
-    <p role="status" className="w-full text-muted">
-      Loading…
-    </p>
-  );
-}
+export { LoadingPage as default } from "@/views/loading/loading-page";

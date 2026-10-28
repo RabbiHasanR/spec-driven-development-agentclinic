@@ -61,3 +61,19 @@ export const SLOTS = [
   "2026-11-02T10:00:00.000Z",
   "2026-11-03T09:00:00.000Z",
 ];
+
+/** A booking of `therapy` at `startsAt`, with a unique id and reference. */
+export function appointmentAt(
+  startsAt: string,
+  therapy: Therapy = THERAPIES[1],
+): AppointmentWithTherapy {
+  const id = Date.parse(startsAt) / 1000 + therapy.id;
+  return {
+    ...APPOINTMENT,
+    id,
+    reference: `AC-${id}`,
+    startsAt,
+    therapyId: therapy.id,
+    therapy,
+  };
+}

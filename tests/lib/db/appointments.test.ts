@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import {
   createAppointment,
   getAppointmentByReference,
+  listAppointments,
   listBookedSlots,
   listOpenSlots,
 } from "@/lib/db/appointments";
@@ -138,5 +139,17 @@ describe("appointment queries", () => {
     expect(() =>
       db.delete(therapies).where(eq(therapies.id, grounding.id)).run(),
     ).toThrow(/FOREIGN KEY/);
+  });
+
+  it("lists every booking with its therapy, earliest first", () => {
+    createAppointment(db, cooldown, input("2026-11-04T09:00:00.000Z"));
+    createAppointment(db, grounding, input());
+
+    expect(
+      listAppointments(db).map((a) => [a.startsAt, a.therapy.slug]),
+    ).toEqual([
+      [SLOT, "grounding-session"],
+      ["2026-11-04T09:00:00.000Z", "cooldown-retreat"],
+    ]);
   });
 });

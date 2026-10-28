@@ -110,3 +110,14 @@ export function getAppointmentByReference(
     .get();
   return row && { ...row.appointments, therapy: row.therapies };
 }
+
+/** Every booking with its therapy, earliest first. */
+export function listAppointments(db: Db): AppointmentWithTherapy[] {
+  return db
+    .select()
+    .from(appointments)
+    .innerJoin(therapies, eq(appointments.therapyId, therapies.id))
+    .orderBy(asc(appointments.startsAt))
+    .all()
+    .map((row) => ({ ...row.appointments, therapy: row.therapies }));
+}

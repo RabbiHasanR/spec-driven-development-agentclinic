@@ -22,12 +22,20 @@
   background: var(--site-surface);
 }
 
+/* Wraps the nav under the brand only if a phone is too narrow for both. */
 .headerInner {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  column-gap: 0.5rem;
   min-height: 3.5rem;
+}
+
+/* Never break a label mid-word (the shell allows that for long content). */
+.brand,
+.navLink {
+  white-space: nowrap;
 }
 
 /* Full 44px-tall tap target, not just the text's line box. */
@@ -43,7 +51,7 @@
 
 .navList {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.25rem;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -56,7 +64,7 @@
   justify-content: center;
   min-width: 2.75rem;
   min-height: 2.75rem;
-  padding-inline: 0.5rem;
+  padding-inline: 0.375rem;
   color: var(--site-text);
   text-decoration: none;
 }
@@ -111,7 +119,16 @@
   }
 
   .headerInner {
+    column-gap: 1rem;
     min-height: 4rem;
+  }
+
+  .navList {
+    gap: 0.5rem;
+  }
+
+  .navLink {
+    padding-inline: 0.5rem;
   }
 
   .brand {
