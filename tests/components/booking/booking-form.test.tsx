@@ -75,6 +75,44 @@ describe("BookingForm", () => {
     expect(action).toHaveBeenCalledOnce();
   });
 
+  it("moves focus to the first field with an error", async () => {
+    render(
+      <BookingForm action={vi.fn(async () => FAILED)} slotDays={SLOT_DAYS} />,
+    );
+
+    submitFilledForm();
+
+    const email = await screen.findByLabelText("Email");
+    await vi.waitFor(() => expect(email).toHaveFocus());
+  });
+
+  it("focuses the slots and describes the error when the time was taken", async () => {
+    const taken = "That time is no longer available. Please pick another.";
+    const action = vi.fn(async () => ({
+      values: { ...FAILED.values, startsAt: "" },
+      errors: { startsAt: taken },
+    }));
+    render(<BookingForm action={action} slotDays={SLOT_DAYS} />);
+
+    submitFilledForm();
+
+    const first = (await screen.findAllByRole("radio"))[0];
+    await vi.waitFor(() => expect(first).toHaveFocus());
+    expect(first).toHaveAccessibleDescription(taken);
+    expect(screen.queryByRole("radio", { checked: true })).toBeNull();
+  });
+
+  it("puts name and email before the long slot list", () => {
+    render(<BookingForm action={vi.fn()} slotDays={SLOT_DAYS} />);
+
+    const email = screen.getByLabelText("Email");
+    const firstSlot = screen.getAllByRole("radio")[0];
+    expect(
+      email.compareDocumentPosition(firstSlot) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+
   it("shows a form-wide message as an alert", async () => {
     const action = vi.fn(async () => ({
       ...FAILED,

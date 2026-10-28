@@ -41,7 +41,7 @@ export function SlotPicker({
               {slots.map((slot) => (
                 <label
                   key={slot.value}
-                  className="flex min-h-11 cursor-pointer items-center justify-center card px-2 font-medium tabular-nums hover:ring-line-strong has-checked:bg-accent has-checked:text-on-accent has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-accent"
+                  className="flex min-h-11 cursor-pointer items-center justify-center rounded-xl bg-surface px-2 font-medium tabular-nums shadow-sm ring-1 ring-control hover:ring-2 has-checked:bg-accent has-checked:text-on-accent has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-accent"
                 >
                   <input
                     type="radio"
@@ -49,6 +49,9 @@ export function SlotPicker({
                     value={slot.value}
                     defaultChecked={slot.value === defaultValue}
                     required
+                    // On each radio too: screen readers read a focused
+                    // radio's description, not its fieldset's.
+                    aria-describedby={error ? errorId : undefined}
                     className="sr-only"
                   />
                   {slot.label}
