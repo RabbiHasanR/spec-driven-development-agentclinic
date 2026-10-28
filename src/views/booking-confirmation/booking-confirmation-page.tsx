@@ -31,9 +31,7 @@ export function BookingConfirmationPage({
             className="grid gap-1 px-5 py-3 sm:grid-cols-3 sm:gap-4"
           >
             <dt className="text-sm font-medium text-muted">{term}</dt>
-            <dd className="font-medium [overflow-wrap:anywhere] sm:col-span-2">
-              {value}
-            </dd>
+            <dd className="font-medium sm:col-span-2">{value}</dd>
           </div>
         ))}
       </dl>

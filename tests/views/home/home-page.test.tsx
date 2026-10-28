@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { HomePage } from "@/views/home/home-page";
 
 describe("Home page", () => {
-  it("renders the AgentClinic heading, tagline, and upcoming features", () => {
+  it("renders the AgentClinic heading, tagline, and the path to relief", () => {
     render(<HomePage />);
 
     expect(
@@ -19,7 +19,7 @@ describe("Home page", () => {
     expect(items.map((item) => item.textContent)).toEqual([
       "Browse ailments→",
       "Discover therapies (on each ailment’s page)",
-      "Book appointments (coming soon)",
+      "Book appointments (from any therapy)",
     ]);
   });
 

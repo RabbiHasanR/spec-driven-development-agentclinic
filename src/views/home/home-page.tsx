@@ -6,7 +6,7 @@ import { SITE } from "@/lib/site";
 const FEATURES: { label: string; href?: string; note?: string }[] = [
   { label: "Browse ailments", href: ROUTES.ailments },
   { label: "Discover therapies", note: "on each ailment’s page" },
-  { label: "Book appointments", note: "coming soon" },
+  { label: "Book appointments", note: "from any therapy" },
 ];
 
 /** Landing page: site name, tagline, and the agent's path to relief. */

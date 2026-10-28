@@ -19,9 +19,7 @@ export function OverviewStats({ overview }: { overview: ScheduleOverview }) {
       {stats.map(({ label, value, note }) => (
         <div key={label} className="card p-5">
           <dt className="text-sm font-medium text-muted">{label}</dt>
-          <dd className="mt-1 text-2xl font-semibold [overflow-wrap:anywhere] text-accent">
-            {value}
-          </dd>
+          <dd className="mt-1 text-2xl font-semibold text-accent">{value}</dd>
           {note && <dd className="text-sm text-ink-soft">{note}</dd>}
         </div>
       ))}

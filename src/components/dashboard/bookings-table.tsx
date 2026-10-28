@@ -41,10 +41,7 @@ export function BookingsTable({
             {appointments.map((appointment) => (
               <tr key={appointment.id}>
                 {COLUMNS.map(({ label, value }) => (
-                  <td
-                    key={label}
-                    className="px-4 py-3 [overflow-wrap:anywhere]"
-                  >
+                  <td key={label} className="px-4 py-3">
                     {value(appointment)}
                   </td>
                 ))}
@@ -61,9 +58,7 @@ export function BookingsTable({
               {COLUMNS.map(({ label, value }) => (
                 <div key={label} className="contents">
                   <dt className="text-muted">{label}</dt>
-                  <dd className="col-span-2 [overflow-wrap:anywhere]">
-                    {value(appointment)}
-                  </dd>
+                  <dd className="col-span-2">{value(appointment)}</dd>
                 </div>
               ))}
             </dl>

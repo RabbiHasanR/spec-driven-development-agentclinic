@@ -1,4 +1,5 @@
 import { formatZone, type SlotDay } from "@/lib/booking/format";
+import { FieldError } from "./field-error";
 
 /**
  * Open time slots as large radio buttons, one group per day. The native
@@ -31,11 +32,7 @@ export function SlotPicker({
           </span>
         )}
       </legend>
-      {error && (
-        <p id={errorId} className="mt-1 text-sm text-danger">
-          {error}
-        </p>
-      )}
+      <FieldError id={errorId} error={error} />
       <div className="mt-3 space-y-5">
         {days.map(({ day, slots }) => (
           <fieldset key={day} className="min-w-0">

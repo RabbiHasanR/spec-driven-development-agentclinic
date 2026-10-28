@@ -1,5 +1,5 @@
 import { BookingForm } from "@/components/booking";
-import { BackLink, PageHeader } from "@/components/ui";
+import { BackLink, PageHeader, Section } from "@/components/ui";
 import { groupSlotsByDay } from "@/lib/booking/format";
 import type { BookingAction } from "@/lib/booking/form-state";
 import { BOOKING_WINDOW_DAYS } from "@/lib/booking/schedule";
@@ -25,21 +25,20 @@ export function BookTherapyPage({
           {therapy.durationMinutes} min session
         </p>
       </div>
-      <section aria-labelledby="booking" className="mt-8 card p-5 sm:p-6">
-        <h2 id="booking" className="text-xl font-semibold">
-          Your appointment
-        </h2>
+      <Section
+        id="booking"
+        title="Your appointment"
+        className="mt-8 card p-5 sm:p-6"
+      >
         {slots.length > 0 ? (
-          <div className="mt-4">
-            <BookingForm action={action} slotDays={groupSlotsByDay(slots)} />
-          </div>
+          <BookingForm action={action} slotDays={groupSlotsByDay(slots)} />
         ) : (
-          <p className="mt-4 text-muted">
+          <p className="text-muted">
             No open times in the next {BOOKING_WINDOW_DAYS} days. Please check
             back soon.
           </p>
         )}
-      </section>
+      </Section>
     </div>
   );
 }
