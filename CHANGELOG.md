@@ -15,6 +15,14 @@ All notable changes to AgentClinic, grouped by date (newest first).
 - Top-aligned page content in the main layout.
 - Recorded the ORM and database decisions in the tech stack and marked roadmap
   Phase 1 as complete.
+- Made migrations safe for table rebuilds (foreign keys off while migrating),
+  stopped the app from silently creating a missing database, and added a
+  friendly error page.
+- Made reseeding replace each ailment's therapy links, and indexed the link
+  table by therapy.
+- Added route-level tests for page titles and the not-found path, and
+  strengthened the seed, card, and view tests.
+- Brought the Phase 1 spec and tech stack in line with the implementation.
 - Defined the Vitest suite as the validation gate in the tech stack.
 - Added tests for site metadata and project directory conventions.
 - Added a mobile-first responsive design standard to the mission, roadmap, and

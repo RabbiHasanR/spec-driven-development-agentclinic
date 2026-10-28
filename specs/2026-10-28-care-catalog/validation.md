@@ -20,7 +20,11 @@ Data layer (in-memory SQLite, real migrations and seed):
 - `getAilmentBySlug()` returns the right ailment and its therapies; it returns
   nothing for an unknown slug.
 - A therapy linked to two ailments appears on both.
-- The seed is idempotent: running it twice leaves the row counts unchanged.
+- The seed is idempotent: running it twice leaves the same data; edited rows
+  are restored and changed links are replaced.
+- Migrations keep linked rows when a later migration rebuilds a table.
+- Opening a missing database file fails with a `db:migrate` hint instead of
+  creating it.
 
 Views:
 
@@ -29,9 +33,18 @@ Views:
 - The ailment detail page renders the name, description, and its therapy cards
   (name, summary, duration).
 - The detail page shows an empty state when an ailment has no therapies.
+- Ailment cards show the name and summary; therapy cards show name, summary,
+  and duration.
+- The error page offers a working "Try again" button.
 - The header contains a link to `/ailments`.
 - The home page's "Browse ailments" item links to `/ailments`.
 - Existing Phase 0 tests (home page, layout, conventions) still pass.
+
+Routes (DB client and Next.js request APIs mocked):
+
+- `/ailments` is titled "Ailments" and passes every ailment to the view.
+- `/ailments/[slug]` sets title and description from the ailment, and calls
+  `notFound()` for an unknown slug (in both the page and its metadata).
 
 ## Manual check
 
@@ -39,7 +52,7 @@ Views:
 2. From home, follow "Browse ailments" to `/ailments`; every seeded ailment is
    listed.
 3. Open an ailment: its description and matching therapies show, and the tab
-   title is the ailment's name.
+   title reads "<Ailment> · AgentClinic".
 4. Visit `/ailments/does-not-exist`: the "Ailment not found" page renders with
    a `noindex` robots tag. (The HTTP status is 200: the `loading.tsx` fallback
    starts streaming before `notFound()` runs. See Next.js `loading.js` →

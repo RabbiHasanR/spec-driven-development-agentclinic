@@ -50,8 +50,12 @@ Why Next.js:
 - **Config:** the DB file path comes from `DATABASE_URL` (see `.env.example`);
   the file lives in the gitignored `data/` directory.
 - **Rendering:** Server Components read the DB directly. With Cache Components
-  enabled, DB reads run per request (`connection()` or awaited `params`) inside
-  a `loading.tsx` Suspense boundary.
+  enabled, DB reads call `connection()` so they run per request, inside a
+  `loading.tsx` Suspense boundary; the build never touches the database.
+- **DB safety:** only `npm run db:migrate` creates the database file; the app
+  and seed refuse a missing one. `migrateDb` turns foreign keys off around
+  migrations (SQLite ignores the pragma inside Drizzle's transaction, so table
+  rebuilds would cascade-delete rows) and runs `foreign_key_check` after.
 
 ## Project conventions
 
@@ -61,7 +65,7 @@ Every phase follows this layout. Update this section when a convention changes.
 | ------------------------ | --------------------------------------------------------------------- |
 | `src/app/`               | Routing only: thin `page.tsx`/`layout.tsx` files, grouped by audience |
 | `src/app/(site)/`        | Public pages, wrapped in `MainLayout`                                 |
-| `src/views/<page>/`      | Page components rendered by the matching route                        |
+| `src/views/<page-name>/` | Page components rendered by the matching route                        |
 | `src/components/<area>/` | Shared UI components                                                  |
 | `src/lib/`               | Shared constants and helpers                                          |
 | `src/lib/db/`            | **All DB code**: schema, client, query functions, migrator, seed      |
@@ -76,7 +80,10 @@ Every phase follows this layout. Update this section when a convention changes.
 Rules:
 
 - New page: `src/app/(site)/<route>/page.tsx` renders a component from
-  `src/views/<route>/`; its test goes in `tests/views/<route>/`.
+  `src/views/<page-name>/` (named for the page, e.g. `ailment-detail/` for
+  `ailments/[slug]/`); its test goes in `tests/views/<page-name>/`. Route-level
+  behavior (metadata, `notFound()`) is tested in `tests/app/`, mirroring the
+  route path.
 - Styles: Tailwind utilities in components, or a CSS Module in `src/styles/`
   imported via `@/styles/…`. Never link CSS from `public/`.
 - Don't create `src/pages/` — it's reserved by the Next.js Pages Router.

@@ -6,8 +6,8 @@
    in `node_modules/next/dist/docs/`.
 2. Add `drizzle-orm`, `better-sqlite3`, `drizzle-kit`, and
    `@types/better-sqlite3`.
-3. Add `src/lib/db/client.ts`: create the Drizzle client from `DATABASE_URL`;
-   mark it server-only.
+3. Add `src/lib/db/connection.ts` (`createDb`, `getDatabasePath` from
+   `DATABASE_URL`) and `src/lib/db/client.ts` (the app's server-only `getDb()`).
 4. Add `drizzle.config.ts`, `.env.example` (`DATABASE_URL=data/agentclinic.db`),
    and gitignore the DB file.
 5. Add scripts: `db:generate`, `db:migrate`, `db:seed`.
@@ -26,10 +26,11 @@
    `src/components/catalog/`.
 5. Add the detail route `src/app/(site)/ailments/[slug]/page.tsx` → view
    `src/views/ailment-detail/ailment-detail-page.tsx`; call `notFound()` for an
-   unknown slug; set per-page metadata (ailment name as the title).
+   unknown slug; set per-page metadata (title `<ailment> · AgentClinic`).
 6. Responsive grid: one column on phones, two at `sm`, three at `lg`.
 7. Link the header and the home page's "Browse ailments" item to `/ailments`.
-8. Tests: ailment queries, the list view, the detail view, and the not-found path.
+8. Tests: ailment queries, the list view, the detail view, and the not-found
+   path (view and route level).
 
 ## 3. Discover therapies (slice 2)
 

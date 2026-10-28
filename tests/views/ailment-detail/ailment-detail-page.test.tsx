@@ -4,19 +4,24 @@ import { AilmentDetailPage } from "@/views/ailment-detail/ailment-detail-page";
 import { AILMENT } from "../../helpers/fixtures";
 
 describe("Ailment detail page", () => {
-  it("renders the ailment and its therapy cards", () => {
+  it("renders the ailment and a card for every therapy", () => {
     render(<AilmentDetailPage ailment={AILMENT} />);
 
     expect(
-      screen.getByRole("heading", { level: 1, name: AILMENT.name }),
+      screen.getByRole("heading", { level: 1, name: "Hallucination Anxiety" }),
     ).toBeInTheDocument();
-    expect(screen.getByText(AILMENT.description)).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "A persistent worry that every confident answer is made up.",
+      ),
+    ).toBeInTheDocument();
 
     const therapies = screen.getByRole("region", { name: "Therapies" });
-    const card = within(therapies).getByRole("article");
-    expect(card).toHaveTextContent("Grounding Session");
-    expect(card).toHaveTextContent("Reconnect with your sources.");
-    expect(card).toHaveTextContent("30 min");
+    const cards = within(therapies).getAllByRole("article");
+    expect(cards).toHaveLength(2);
+    expect(cards[1]).toHaveTextContent("Grounding Session");
+    expect(cards[1]).toHaveTextContent("Reconnect with your sources.");
+    expect(cards[1]).toHaveTextContent("30 min");
   });
 
   it("shows an empty state when the ailment has no therapies", () => {

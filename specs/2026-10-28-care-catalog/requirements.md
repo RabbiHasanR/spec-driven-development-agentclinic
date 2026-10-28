@@ -25,7 +25,14 @@ In scope:
   and short summary, linking to its detail page.
 - **Ailment detail page** at `/ailments/[slug]`: name, full description, and
   the therapies that treat it as cards.
-- **Not found:** an unknown slug renders a 404.
+- **Not found:** an unknown slug renders an "Ailment not found" page marked
+  `noindex`. Its HTTP status is 200, not 404: the `loading.tsx` fallback starts
+  the stream before `notFound()` runs, and Cache Components rules out
+  `dynamicParams = false` (see Decisions).
+- **Page titles:** `<Page> · AgentClinic` via a root title template, e.g.
+  "Prompt Fatigue · AgentClinic".
+- **Errors:** an unexpected error (e.g. a missing database) shows a friendly
+  error page with a retry button.
 - **Navigation:** header link to `/ailments`; the home page's "Browse
   ailments" item links to `/ailments`.
 - **Responsive UI** per
@@ -45,16 +52,18 @@ Out of scope:
 
 ## Data model
 
-| Table             | Columns                                                                       |
-| ----------------- | ----------------------------------------------------------------------------- |
-| `ailments`        | `id` (pk), `slug` (unique), `name`, `summary`, `description`                  |
-| `therapies`       | `id` (pk), `slug` (unique), `name`, `summary`, `duration_minutes`             |
-| `ailment_therapy` | `ailment_id` (fk), `therapy_id` (fk); composite pk `(ailment_id, therapy_id)` |
+| Table             | Columns                                                                      |
+| ----------------- | ---------------------------------------------------------------------------- |
+| `ailments`        | `id` (pk), `slug` (unique), `name`, `summary`, `description`                 |
+| `therapies`       | `id` (pk), `slug` (unique), `name`, `summary`, `duration_minutes`            |
+| `ailment_therapy` | `ailment_id` (fk), `therapy_id` (fk, indexed); pk `(ailment_id, therapy_id)` |
 
 - Slugs are lowercase kebab-case and are the public URL identifier.
 - Every seeded ailment has at least one therapy, and at least one therapy
   treats more than one ailment (this exercises the many-to-many link).
-- The seed is idempotent: running it twice leaves the same data.
+- The seed is idempotent: running it twice leaves the same data. It updates
+  seeded rows and replaces each seeded ailment's links; rows removed from the
+  seed data are left in place, so reseeding never cascades into other data.
 
 ## Decisions
 
@@ -69,6 +78,10 @@ Out of scope:
 | Data access   | Query functions in `src/lib/db/` (e.g. `listAilments`, `getAilmentBySlug`) | Views never import Drizzle directly; one place to test queries                  |
 | Test DB       | In-memory SQLite with migrations and seed applied                          | Fast and isolated; tests real queries, not mocks                                |
 | Task ordering | Two vertical slices (ailments, then therapies)                             | Each slice is demoable on its own                                               |
+| Freshness     | Both pages read per request (`connection()`) inside `loading.tsx`          | Catalog edits show without a rebuild; the build never needs a database          |
+| Unknown slug  | Streamed not-found page (HTTP 200 + `noindex`)                             | A real 404 would need a DB lookup in Proxy; not worth it for v1                 |
+| DB creation   | Only `db:migrate` creates the file; the app refuses a missing one          | A mistyped `DATABASE_URL` fails loudly instead of creating an empty DB          |
+| Migrations    | Run with foreign keys off, then `foreign_key_check`                        | SQLite ignores the pragma inside Drizzle's transaction; rebuilds would cascade  |
 
 ## Constraints
 
@@ -77,6 +90,9 @@ Out of scope:
   `src/styles/`.
 - Read the relevant guides in `node_modules/next/dist/docs/` before writing
   route code (this Next.js version has breaking changes, e.g. async `params`).
-- The database module is server-only; it must never be bundled into client code.
+- Database code is server-only and never bundled into client code. Only
+  `src/lib/db/client.ts` imports `server-only`: `connection.ts`, the queries,
+  and the seed stay importable by the `tsx` scripts and tests, and only
+  `src/lib/db/` may import Drizzle (enforced by `tests/conventions.test.ts`).
 - TypeScript strict mode; no secrets committed.
 - Keep the phase small: read-only catalog only.

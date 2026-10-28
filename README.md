@@ -13,7 +13,7 @@ Requires Node.js LTS (24.x).
 ```bash
 npm ci                # install exact locked dependencies
 cp .env.example .env  # configure DATABASE_URL (SQLite file path)
-npm run db:migrate    # create/upgrade the database schema
+npm run db:migrate    # create the database file and apply the schema
 npm run db:seed       # load the ailment and therapy catalog
 npm run dev           # start the dev server at http://localhost:3000
 ```
