@@ -1,4 +1,4 @@
-import type { ailments, therapies } from "./schema";
+import type { ailments, appointments, therapies } from "./schema";
 
 // View-facing row types. UI code imports these instead of the schema, so
 // tables can gain internal columns without leaking them into components.
@@ -6,3 +6,5 @@ import type { ailments, therapies } from "./schema";
 export type Ailment = typeof ailments.$inferSelect;
 export type Therapy = typeof therapies.$inferSelect;
 export type AilmentWithTherapies = Ailment & { therapies: Therapy[] };
+export type Appointment = typeof appointments.$inferSelect;
+export type AppointmentWithTherapy = Appointment & { therapy: Therapy };

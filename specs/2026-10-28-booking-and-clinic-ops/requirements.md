@@ -69,7 +69,10 @@ Out of scope:
 
 Slots:
 
-- Weekdays, on the hour, 09:00–16:00 clinic time (last slot starts 16:00).
+- Weekdays, on the hour, from 09:00 clinic time; every session ends by 17:00.
+- Slots are spaced by the therapy's duration rounded up to whole hours, so
+  sessions never overlap: a 30–60 minute therapy gets 09:00–16:00, and the
+  90-minute Cooldown Retreat gets 09:00, 11:00, 13:00, and 15:00.
 - The booking window is the next 14 days, starting from the next full hour.
 - Each therapy has its own schedule: a slot is open when no appointment exists
   for that therapy at that start time.

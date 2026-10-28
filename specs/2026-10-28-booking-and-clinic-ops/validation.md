@@ -17,8 +17,9 @@ The migration must also apply cleanly to an existing Phase 1 database.
 
 Slots and validation (pure functions, fixed clock):
 
-- `generateSlots()` returns only weekday, on-the-hour slots from 09:00 to
-  16:00 clinic time, within the next 14 days, starting after "now".
+- `generateSlots()` returns only weekday, on-the-hour slots from 09:00 that
+  end by 17:00 clinic time, spaced by the therapy's duration in whole hours,
+  within the next 14 days, starting after "now".
 - Weekends and past hours of today are excluded.
 - `validateBooking()` rejects a blank name, an invalid email, and a slot that
   isn't open, with one error per field; it accepts valid input.
