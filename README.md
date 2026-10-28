@@ -43,28 +43,31 @@ therapies).
 src/
 ├── app/                  # Routing only: thin route files and layouts
 │   ├── layout.tsx        # Root <html>/<body>, metadata, global CSS import
+│   ├── not-found.tsx     # 404 for unmatched URLs (adds <MainLayout> itself)
 │   └── (site)/           # Route group (not part of the URL)
 │       ├── layout.tsx    # Wraps public pages in <MainLayout>
+│       ├── error.tsx     # Error boundary with a retry button
 │       ├── page.tsx      # "/" → renders <HomePage />
 │       └── ailments/     # "/ailments" and "/ailments/[slug]" (+ loading, not-found)
 ├── components/           # Shared UI
-│   ├── layout/           # MainLayout = Header + MainContent + Footer
-│   └── catalog/          # AilmentCard, TherapyCard, BackLink
+│   ├── layout/           # MainLayout = Header (+ NavLink) + MainContent + Footer
+│   ├── catalog/          # AilmentCard, TherapyCard
+│   └── ui/               # PageHeader, BackLink
 ├── views/                # Page components, one folder per page
-│   ├── home/
-│   ├── ailments/
-│   └── ailment-detail/
-├── lib/                  # Shared constants and helpers (site.ts)
-│   └── db/               # Drizzle schema, client, queries, migrator, seed
+│   ├── home/  ailments/  ailment-detail/
+│   └── error/  not-found/
+├── lib/                  # Shared helpers: site.ts, routes.ts (all URL paths)
+│   └── db/               # Drizzle schema, client, queries, migrator, seed, types
 └── styles/               # All CSS
-    ├── globals.css       # Tailwind + shared color tokens
+    ├── globals.css       # Tailwind, color tokens, `card` / `focus-ring` utilities
     └── components/       # CSS Modules for src/components/
 drizzle/                  # Generated SQL migrations (committed)
 scripts/                  # db:migrate and db:seed entry points (run with tsx)
 tests/                    # All tests, mirroring src/
 ├── setup.ts
 ├── helpers/              # In-memory test DB and fixtures
-├── lib/db/
+├── app/                  # Route-level tests (metadata, notFound)
+├── lib/
 ├── components/
 └── views/
 specs/                    # Mission, tech stack, roadmap, per-phase specs

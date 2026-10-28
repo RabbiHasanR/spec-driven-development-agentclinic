@@ -1,6 +1,10 @@
 import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { MainLayout } from "@/components/layout";
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/ailments/prompt-fatigue",
+}));
 
 describe("MainLayout", () => {
   it("renders header, main content, and footer landmarks", () => {
@@ -29,9 +33,9 @@ describe("MainLayout", () => {
     );
 
     const nav = screen.getByRole("navigation", { name: "Main" });
-    expect(within(nav).getByRole("link", { name: "Ailments" })).toHaveAttribute(
-      "href",
-      "/ailments",
-    );
+    const link = within(nav).getByRole("link", { name: "Ailments" });
+    expect(link).toHaveAttribute("href", "/ailments");
+    // Marked current on an ailment's detail page too.
+    expect(link).toHaveAttribute("aria-current", "page");
   });
 });

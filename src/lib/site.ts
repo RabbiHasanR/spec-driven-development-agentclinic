@@ -1,3 +1,5 @@
+import { ROUTES } from "./routes";
+
 /** Site-wide copy shared by metadata, layout, and pages. */
 export const SITE = {
   name: "AgentClinic",
@@ -7,4 +9,6 @@ export const SITE = {
 } as const;
 
 /** Main navigation links, shown in the site header. */
-export const NAV_LINKS = [{ href: "/ailments", label: "Ailments" }] as const;
+export const NAV_LINKS = [
+  { href: ROUTES.ailments, label: "Ailments" },
+] as const;

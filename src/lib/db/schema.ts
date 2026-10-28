@@ -41,8 +41,5 @@ export const ailmentTherapies = sqliteTable(
   ],
 );
 
-export type Ailment = typeof ailments.$inferSelect;
 export type NewAilment = typeof ailments.$inferInsert;
-export type Therapy = typeof therapies.$inferSelect;
 export type NewTherapy = typeof therapies.$inferInsert;
-export type AilmentWithTherapies = Ailment & { therapies: Therapy[] };

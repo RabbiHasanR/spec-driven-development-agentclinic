@@ -1,6 +1,7 @@
 import { asc, eq } from "drizzle-orm";
 import type { Db } from "./connection";
-import { ailments, type Ailment, type AilmentWithTherapies } from "./schema";
+import { ailments } from "./schema";
+import type { Ailment, AilmentWithTherapies } from "./types";
 import { listTherapiesForAilment } from "./therapies";
 
 /** Every ailment, ordered by name. */

@@ -1,3 +1,3 @@
 export { AilmentCard } from "./ailment-card";
-export { BackLink } from "./back-link";
+export type { HeadingLevel } from "./card-heading";
 export { TherapyCard } from "./therapy-card";

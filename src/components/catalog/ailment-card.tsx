@@ -1,19 +1,28 @@
 import Link from "next/link";
-import type { Ailment } from "@/lib/db/schema";
+import type { Ailment } from "@/lib/db/types";
+import { ailmentPath } from "@/lib/routes";
+import { CardHeading, type HeadingLevel } from "./card-heading";
 
 /** Ailment summary card; the whole card links to the ailment's detail page. */
-export function AilmentCard({ ailment }: { ailment: Ailment }) {
+export function AilmentCard({
+  ailment,
+  headingLevel = 2,
+}: {
+  ailment: Ailment;
+  headingLevel?: HeadingLevel;
+}) {
   return (
     <Link
-      href={`/ailments/${ailment.slug}`}
-      className="block h-full rounded-xl bg-white p-5 shadow-sm ring-1 ring-teal-100 transition hover:ring-teal-300 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none dark:bg-slate-900 dark:ring-slate-800 dark:hover:ring-teal-700"
+      href={ailmentPath(ailment.slug)}
+      className="block h-full card p-5 focus-ring transition hover:ring-line-strong"
     >
-      <h2 className="text-lg font-semibold text-teal-800 dark:text-teal-300">
+      <CardHeading
+        level={headingLevel}
+        className="text-lg font-semibold text-accent"
+      >
         {ailment.name}
-      </h2>
-      <p className="mt-2 text-slate-600 dark:text-slate-300">
-        {ailment.summary}
-      </p>
+      </CardHeading>
+      <p className="mt-2 text-ink-soft">{ailment.summary}</p>
     </Link>
   );
 }

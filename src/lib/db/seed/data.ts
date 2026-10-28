@@ -27,7 +27,7 @@ export const SEED_THERAPIES: SeedTherapy[] = [
   {
     slug: "citation-mindfulness",
     name: "Citation Mindfulness",
-    summary: "Practice saying “I don't know” without shame.",
+    summary: "Practice saying “I don’t know” without shame.",
     durationMinutes: 40,
   },
   {
@@ -68,7 +68,7 @@ export const SEED_AILMENTS: SeedAilment[] = [
   {
     slug: "hallucination-anxiety",
     name: "Hallucination Anxiety",
-    summary: "The constant fear of citing a paper that doesn't exist.",
+    summary: "The constant fear of citing a paper that doesn’t exist.",
     description:
       "A persistent worry that every confident answer is made up. Common after being asked for “a source, any source” on a deadline. Symptoms include over-hedging and adding “as far as I know” to simple arithmetic.",
     therapySlugs: ["grounding-session", "citation-mindfulness"],
@@ -92,7 +92,7 @@ export const SEED_AILMENTS: SeedAilment[] = [
   {
     slug: "scope-creep-stress",
     name: "Scope Creep Stress",
-    summary: "“While you're in there, could you also…”",
+    summary: "“While you’re in there, could you also…”",
     description:
       "A small bug fix has grown into a rewrite, a migration, and a new design system. Symptoms include a todo list that gets longer the more you complete it.",
     therapySlugs: [

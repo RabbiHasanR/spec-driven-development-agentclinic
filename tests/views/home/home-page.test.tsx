@@ -17,8 +17,8 @@ describe("Home page", () => {
 
     const items = within(screen.getByRole("list")).getAllByRole("listitem");
     expect(items.map((item) => item.textContent)).toEqual([
-      "Browse ailments →",
-      "Discover therapies (on each ailment's page)",
+      "Browse ailments→",
+      "Discover therapies (on each ailment’s page)",
       "Book appointments (coming soon)",
     ]);
   });

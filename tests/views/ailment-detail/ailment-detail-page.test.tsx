@@ -35,8 +35,9 @@ describe("Ailment detail page", () => {
   it("links back to the ailments list", () => {
     render(<AilmentDetailPage ailment={AILMENT} />);
 
-    expect(
-      screen.getByRole("link", { name: "← All ailments" }),
-    ).toHaveAttribute("href", "/ailments");
+    expect(screen.getByRole("link", { name: "All ailments" })).toHaveAttribute(
+      "href",
+      "/ailments",
+    );
   });
 });

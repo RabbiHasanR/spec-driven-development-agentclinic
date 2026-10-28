@@ -1,15 +1,21 @@
-import type { Therapy } from "@/lib/db/schema";
+import type { Therapy } from "@/lib/db/types";
+import { CardHeading, type HeadingLevel } from "./card-heading";
 
-export function TherapyCard({ therapy }: { therapy: Therapy }) {
+/** Therapy card: name, summary, and session length. */
+export function TherapyCard({
+  therapy,
+  headingLevel = 3,
+}: {
+  therapy: Therapy;
+  headingLevel?: HeadingLevel;
+}) {
   return (
-    <article className="h-full rounded-xl bg-white p-5 shadow-sm ring-1 ring-teal-100 dark:bg-slate-900 dark:ring-slate-800">
-      <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100">
+    <article className="h-full card p-5">
+      <CardHeading level={headingLevel} className="text-lg font-semibold">
         {therapy.name}
-      </h3>
-      <p className="mt-2 text-slate-600 dark:text-slate-300">
-        {therapy.summary}
-      </p>
-      <p className="mt-3 text-sm font-medium text-teal-700 dark:text-teal-400">
+      </CardHeading>
+      <p className="mt-2 text-ink-soft">{therapy.summary}</p>
+      <p className="mt-3 text-sm font-medium text-accent">
         {therapy.durationMinutes} min
       </p>
     </article>

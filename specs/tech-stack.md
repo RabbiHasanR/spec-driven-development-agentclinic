@@ -66,7 +66,7 @@ Every phase follows this layout. Update this section when a convention changes.
 | `src/app/`               | Routing only: thin `page.tsx`/`layout.tsx` files, grouped by audience |
 | `src/app/(site)/`        | Public pages, wrapped in `MainLayout`                                 |
 | `src/views/<page-name>/` | Page components rendered by the matching route                        |
-| `src/components/<area>/` | Shared UI components                                                  |
+| `src/components/<area>/` | Shared UI components (`ui/` holds generic building blocks)            |
 | `src/lib/`               | Shared constants and helpers                                          |
 | `src/lib/db/`            | **All DB code**: schema, client, query functions, migrator, seed      |
 | `drizzle/`               | Generated SQL migrations (`npm run db:generate`); committed           |
@@ -86,6 +86,16 @@ Rules:
   route path.
 - Styles: Tailwind utilities in components, or a CSS Module in `src/styles/`
   imported via `@/styles/…`. Never link CSS from `public/`.
+- Colors come only from the `--site-*` tokens in `globals.css`. Tailwind uses
+  them as `text-accent`, `bg-surface`, `ring-line`, `text-muted`, etc.; CSS
+  Modules as `var(--site-*)`. Tokens switch with the color scheme, so don't
+  write `dark:` variants or raw palette colors (`teal-800`, `slate-500`).
+- Reuse the `card` and `focus-ring` utilities (in `globals.css`) and the
+  `src/components/ui/` components (`PageHeader`, `BackLink`) instead of
+  repeating class strings.
+- URL paths live in `src/lib/routes.ts` (`ROUTES`, `ailmentPath()`); never
+  type a path string in a component.
+- UI code imports row types from `src/lib/db/types.ts`, never the schema.
 - Don't create `src/pages/` — it's reserved by the Next.js Pages Router.
 - Tests are named `*.test.ts(x)` and import source via `@/…`.
 - Only `src/lib/db/` imports Drizzle or `better-sqlite3`. Query functions take

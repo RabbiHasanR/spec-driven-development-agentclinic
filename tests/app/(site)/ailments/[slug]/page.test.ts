@@ -29,7 +29,7 @@ describe("/ailments/[slug] route", () => {
   it("titles the page with the ailment's name and summary", async () => {
     expect(await generateMetadata(propsFor("hallucination-anxiety"))).toEqual({
       title: "Hallucination Anxiety",
-      description: "The constant fear of citing a paper that doesn't exist.",
+      description: "The constant fear of citing a paper that doesn’t exist.",
     });
   });
 

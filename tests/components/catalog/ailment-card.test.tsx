@@ -15,4 +15,12 @@ describe("AilmentCard", () => {
     ).toBeInTheDocument();
     expect(link).toHaveTextContent("Fear of citing papers that don’t exist.");
   });
+
+  it("uses the heading level it's given", () => {
+    render(<AilmentCard ailment={AILMENTS[0]} headingLevel={3} />);
+
+    expect(
+      screen.getByRole("heading", { level: 3, name: "Hallucination Anxiety" }),
+    ).toBeInTheDocument();
+  });
 });

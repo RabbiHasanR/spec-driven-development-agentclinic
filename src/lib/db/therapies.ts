@@ -1,6 +1,7 @@
 import { asc, eq, getTableColumns } from "drizzle-orm";
 import type { Db } from "./connection";
-import { ailmentTherapies, therapies, type Therapy } from "./schema";
+import { ailmentTherapies, therapies } from "./schema";
+import type { Therapy } from "./types";
 
 /** Therapies that treat the given ailment, ordered by name. */
 export function listTherapiesForAilment(db: Db, ailmentId: number): Therapy[] {

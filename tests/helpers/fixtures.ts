@@ -1,4 +1,4 @@
-import type { Ailment, AilmentWithTherapies, Therapy } from "@/lib/db/schema";
+import type { Ailment, AilmentWithTherapies, Therapy } from "@/lib/db/types";
 
 export const THERAPIES: Therapy[] = [
   {

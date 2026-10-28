@@ -23,6 +23,13 @@ All notable changes to AgentClinic, grouped by date (newest first).
 - Added route-level tests for page titles and the not-found path, and
   strengthened the seed, card, and view tests.
 - Brought the Phase 1 spec and tech stack in line with the implementation.
+- Unified styling on the shared color tokens (Tailwind theme colors that
+  switch with the color scheme) with shared `card` and `focus-ring`
+  utilities, fixing low dark-mode contrast on the home page.
+- Added shared `PageHeader` and `BackLink` components and central route
+  helpers, and marked the current page in the header navigation.
+- Added a site-styled 404 page for unknown URLs and accessibility fixes
+  (decorative arrows hidden, card heading levels, high-contrast focus).
 - Defined the Vitest suite as the validation gate in the tech stack.
 - Added tests for site metadata and project directory conventions.
 - Added a mobile-first responsive design standard to the mission, roadmap, and
