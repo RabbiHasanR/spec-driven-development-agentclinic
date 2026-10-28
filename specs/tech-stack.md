@@ -67,6 +67,15 @@ Rules:
 - Don't create `src/pages/` — it's reserved by the Next.js Pages Router.
 - Tests are named `*.test.ts(x)` and import source via `@/…`.
 
+## Validation
+
+Vitest tests are how we validate every change. Work isn't done until they pass.
+
+- `npm test` runs the whole suite once (`vitest run`). Use it before committing and in CI.
+- `npm run test:watch` re-runs tests as you edit.
+- Each phase's acceptance criteria are written as Vitest tests in `tests/`.
+- Run `npm run lint` and `npm run format:check` alongside `npm test`.
+
 ## Deferred decisions
 
 - Component library (if any) on top of Tailwind.
