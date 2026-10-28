@@ -56,7 +56,7 @@
 5. Add `src/lib/site.ts` for shared site constants (name, tagline, description).
 6. Render `MainLayout` from the route group layout `src/app/(site)/layout.tsx`;
    the root `src/app/layout.tsx` keeps only `<html>`, `<body>`, and global CSS.
-   (Later groups, e.g. the Phase 4 dashboard, can use a different layout.)
+   (Later groups, e.g. the Phase 2 dashboard, can use a different layout.)
 7. Add tests for `MainLayout` (banner, main, contentinfo landmarks) and update the
    home page test. (Moved to `tests/` in §8.)
 8. Update `README.md` project layout.

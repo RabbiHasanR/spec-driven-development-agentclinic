@@ -20,13 +20,15 @@ every phase's UI meets the
 - Ailment list is a single column on phones and a multi-column grid on wider
   screens.
 
-## Phase 2 — Discover therapies
+## Phase 2 — Therapies, booking, dashboard, and polish
+
+### Discover therapies
 
 - Model **therapies** and link them to ailments.
 - Show matching therapies on each ailment's detail page.
 - Therapy cards stack on phones and sit side by side on wider screens.
 
-## Phase 3 — Book an appointment
+### Book an appointment
 
 - Model **appointments**.
 - Let an agent book an appointment for a therapy.
@@ -34,14 +36,14 @@ every phase's UI meets the
 - Booking form is fully usable on a phone (full-width fields, 44px tap
   targets, mobile-friendly input types).
 
-## Phase 4 — Staff dashboard
+### Staff dashboard
 
 - Dashboard page listing all bookings.
 - Basic status/overview of the schedule.
 - Bookings table scrolls inside its container or reflows into cards on small
   screens; no page-level horizontal scroll.
 
-## Phase 5 — Polish
+### Polish
 
 - Attractive, consistent styling across pages.
 - Verify a fast, clean experience in a modern browser.

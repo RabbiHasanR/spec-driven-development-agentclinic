@@ -28,12 +28,12 @@ In scope:
 
 Out of scope:
 
-- Ailments, therapies, appointments, dashboard (Phases 1–4).
+- Ailments, therapies, appointments, dashboard (Phases 1–2).
 - ORM and database selection.
 - CI workflows, hosting/deploy.
 - Links/navigation to feature pages (they don't exist yet); the header only
   links home.
-- Full visual design and branding (Phase 5).
+- Full visual design and branding (Phase 2).
 
 ## Decisions
 
