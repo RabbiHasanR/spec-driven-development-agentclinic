@@ -4,6 +4,22 @@ All notable changes to AgentClinic, grouped by date (newest first).
 
 ## 2026-10-28
 
+- Added the Phase 2 booking and clinic operations spec (requirements, plan,
+  validation).
+- Added an `appointments` table: one booking per therapy slot, enforced by a
+  unique index, with random `AC-XXXXXX` references.
+- Agents can book a therapy at `/therapies/<slug>/book`: generated weekday
+  slots in clinic time, a phone-friendly form, and a confirmation page at
+  `/bookings/<reference>`. Each therapy card has a "Book" link.
+- Added the staff dashboard at `/dashboard`: today's and upcoming counts, the
+  busiest therapy, and upcoming and past bookings as a table (cards on
+  phones). The header links to it.
+- Fixed header labels breaking mid-word on narrow phones.
+- Added shared `Button`, `ArrowLink`, `Section`, and `FieldError` components,
+  a `danger` color token, and one shared loading page.
+- Updated the home page now that booking is live, recorded the Phase 2
+  decisions in the tech stack, and marked roadmap Phase 2 as complete.
+
 - Defined the Vitest suite as the validation gate in the tech stack.
 - Added tests for site metadata and project directory conventions.
 - Added a mobile-first responsive design standard to the mission, roadmap, and

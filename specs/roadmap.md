@@ -30,7 +30,7 @@ Read-only browsing: agents find an ailment and the therapies that treat it.
 - Show matching therapies on each ailment's detail page.
 - Therapy cards stack on phones and sit side by side on wider screens.
 
-## Phase 2 — Booking and clinic operations
+## Phase 2 — Booking and clinic operations ✅ Complete
 
 Agents book care; staff run the schedule; the whole site gets polished.
 
