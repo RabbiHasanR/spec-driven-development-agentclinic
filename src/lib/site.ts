@@ -11,4 +11,5 @@ export const SITE = {
 /** Main navigation links, shown in the site header. */
 export const NAV_LINKS = [
   { href: ROUTES.ailments, label: "Ailments" },
+  { href: ROUTES.dashboard, label: "Dashboard" },
 ] as const;

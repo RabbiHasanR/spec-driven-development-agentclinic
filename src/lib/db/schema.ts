@@ -4,6 +4,7 @@ import {
   primaryKey,
   sqliteTable,
   text,
+  uniqueIndex,
 } from "drizzle-orm/sqlite-core";
 
 export const ailments = sqliteTable("ailments", {
@@ -41,5 +42,33 @@ export const ailmentTherapies = sqliteTable(
   ],
 );
 
+/** A booked therapy slot. Times are ISO 8601 UTC strings. */
+export const appointments = sqliteTable(
+  "appointments",
+  {
+    id: integer("id").primaryKey(),
+    reference: text("reference").notNull().unique(),
+    therapyId: integer("therapy_id")
+      .notNull()
+      // Deleting a therapy must never silently drop its bookings.
+      .references(() => therapies.id, { onDelete: "restrict" }),
+    startsAt: text("starts_at").notNull(),
+    agentName: text("agent_name").notNull(),
+    agentEmail: text("agent_email").notNull(),
+    createdAt: text("created_at").notNull(),
+  },
+  (table) => [
+    // One booking per therapy per slot, enforced by the database so two
+    // concurrent submissions can't both succeed.
+    uniqueIndex("appointments_therapy_slot_unique").on(
+      table.therapyId,
+      table.startsAt,
+    ),
+    // Covers the dashboard's ordering by start time.
+    index("appointments_starts_at_idx").on(table.startsAt),
+  ],
+);
+
 export type NewAilment = typeof ailments.$inferInsert;
 export type NewTherapy = typeof therapies.$inferInsert;
+export type NewAppointment = typeof appointments.$inferInsert;

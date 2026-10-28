@@ -2,11 +2,26 @@
 export const ROUTES = {
   home: "/",
   ailments: "/ailments",
+  dashboard: "/dashboard",
 } as const;
+
+// Path prefixes with no page of their own; only the builders below use them.
+const THERAPIES_PREFIX = "/therapies";
+const BOOKINGS_PREFIX = "/bookings";
 
 /** URL of one ailment's detail page. */
 export function ailmentPath(slug: string): string {
   return `${ROUTES.ailments}/${encodeURIComponent(slug)}`;
+}
+
+/** URL of the booking page for one therapy. */
+export function bookTherapyPath(slug: string): string {
+  return `${THERAPIES_PREFIX}/${encodeURIComponent(slug)}/book`;
+}
+
+/** URL of a booking's confirmation page. */
+export function bookingPath(reference: string): string {
+  return `${BOOKINGS_PREFIX}/${encodeURIComponent(reference)}`;
 }
 
 /**

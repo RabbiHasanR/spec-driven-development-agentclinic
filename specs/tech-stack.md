@@ -57,6 +57,28 @@ Why Next.js:
   migrations (SQLite ignores the pragma inside Drizzle's transaction, so table
   rebuilds would cascade-delete rows) and runs `foreign_key_check` after.
 
+## Decided in Phase 2
+
+- **Writes:** forms post to Server Actions in `src/lib/<area>/actions.ts`
+  (`"use server"`). The route binds any route params (`action.bind(null,
+slug)`) and passes the action to the view, so views stay testable with a
+  fake action. Client forms use `useActionState`; the action returns field
+  errors plus the submitted values, and calls `redirect()` outside any
+  `try`. Every action re-validates its input: actions are reachable by direct
+  POST.
+- **Integrity in the database:** rules that must hold under concurrency (one
+  booking per therapy slot) are unique indexes; the query maps the constraint
+  error to a result (`{ ok: false, reason: "slot-taken" }`).
+- **Time:** times are stored as ISO 8601 UTC strings. Clinic-time rules use
+  `CLINIC_TIME_ZONE` and `Intl` (no date library); pure functions take `now`
+  so tests pass a fixed clock.
+- **Staff pages** live in the `(staff)` route group, where auth will go. Pages
+  showing personal data (`/dashboard`, `/bookings/[reference]`) are `noindex`.
+- **Forms** keep the browser's own validation (`required`, `type="email"`) so
+  they work before JavaScript loads; the server's checks are the real gate.
+  Known limitation: without JavaScript, a server-side error (e.g. a slot taken
+  in a race) re-renders the form without its message.
+
 ## Project conventions
 
 Every phase follows this layout. Update this section when a convention changes.
@@ -69,6 +91,8 @@ Every phase follows this layout. Update this section when a convention changes.
 | `src/components/<area>/` | Shared UI components (`ui/` holds generic building blocks)            |
 | `src/lib/`               | Shared constants and helpers                                          |
 | `src/lib/db/`            | **All DB code**: schema, client, query functions, migrator, seed      |
+| `src/lib/<area>/`        | Domain logic and Server Actions (e.g. `booking/`), no Drizzle imports |
+| `src/app/(staff)/`       | Staff pages, wrapped in `MainLayout`; future home of staff auth       |
 | `drizzle/`               | Generated SQL migrations (`npm run db:generate`); committed           |
 | `scripts/`               | CLI entry points run with `tsx` (e.g. `db:migrate`, `db:seed`)        |
 | `src/styles/`            | **All CSS**: `globals.css` plus CSS Modules                           |
@@ -91,13 +115,26 @@ Rules:
   Modules as `var(--site-*)`. Tokens switch with the color scheme, so don't
   write `dark:` variants or raw palette colors (`teal-800`, `slate-500`).
 - Reuse the `card` and `focus-ring` utilities (in `globals.css`) and the
-  `src/components/ui/` components (`PageHeader`, `BackLink`) instead of
-  repeating class strings.
-- URL paths live in `src/lib/routes.ts` (`ROUTES`, `ailmentPath()`); never
-  type a path string in a component.
+  `src/components/ui/` components (`PageHeader`, `Section`, `Button`,
+  `ArrowLink`, `BackLink`) instead of repeating class strings.
+- Every page that reads per-request data (calls `connection()`) has a
+  `loading.tsx` in its own folder that re-exports `LoadingPage` from
+  `src/views/loading/`. A boundary in a parent folder or route group isn't
+  enough: on a client navigation the parent segments stay mounted, so only a
+  boundary at the page's own segment can show while it loads, and Next.js dev
+  reports the route as blocking ("uncached data … outside of `<Suspense>`").
+  Enforced by `tests/conventions.test.ts`.
+- Each route group has one `error.tsx` that re-exports `ErrorBoundary` from
+  `src/views/error/`.
+- URL paths live in `src/lib/routes.ts` (`ROUTES`, `ailmentPath()`,
+  `bookTherapyPath()`, `bookingPath()`); never type a path string in a
+  component.
 - UI code imports row types from `src/lib/db/types.ts`, never the schema.
 - Don't create `src/pages/` — it's reserved by the Next.js Pages Router.
 - Tests are named `*.test.ts(x)` and import source via `@/…`.
+- Dependencies point one way: `src/lib/<area>/` may import `src/lib/db/`, but
+  `src/lib/db/` imports nothing from other `src/` areas (enforced by
+  `tests/conventions.test.ts`).
 - Only `src/lib/db/` imports Drizzle or `better-sqlite3`. Query functions take
   the `Db` as their first argument; routes pass `getDb()` (server-only), tests
   pass an in-memory DB from `tests/helpers/db.ts`.

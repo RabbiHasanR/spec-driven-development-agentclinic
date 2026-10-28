@@ -16,6 +16,9 @@
   --site-on-accent: #ffffff;
   --site-border: #ccfbf1;
   --site-border-strong: #5eead4;
+  --site-danger: #b91c1c;
+  /* Form control edges: ≥ 3:1 against surface and page (WCAG 1.4.11). */
+  --site-control-border: #0d9488;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -29,6 +32,7 @@
     --site-on-accent: #042f2e;
     --site-border: #1e293b;
     --site-border-strong: #0f766e;
+    --site-danger: #fca5a5;
   }
 }
 
@@ -42,6 +46,8 @@
   --color-on-accent: var(--site-on-accent);
   --color-line: var(--site-border);
   --color-line-strong: var(--site-border-strong);
+  --color-danger: var(--site-danger);
+  --color-control: var(--site-control-border);
 }
 
 /* Card surface shared by catalog cards and home page links (no padding). */

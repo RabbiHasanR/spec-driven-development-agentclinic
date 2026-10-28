@@ -1,5 +1,5 @@
 import { TherapyCard } from "@/components/catalog";
-import { BackLink, PageHeader } from "@/components/ui";
+import { BackLink, PageHeader, Section } from "@/components/ui";
 import type { AilmentWithTherapies } from "@/lib/db/types";
 import { ROUTES } from "@/lib/routes";
 
@@ -16,12 +16,9 @@ export function AilmentDetailPage({
         <PageHeader title={ailment.name} lead={ailment.summary} />
         <p className="mt-4 max-w-3xl leading-relaxed">{ailment.description}</p>
 
-        <section aria-labelledby="therapies" className="mt-10">
-          <h2 id="therapies" className="text-xl font-semibold">
-            Therapies
-          </h2>
+        <Section id="therapies" title="Therapies">
           {ailment.therapies.length > 0 ? (
-            <ul className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+            <ul className="grid grid-cols-1 gap-4 md:grid-cols-2">
               {ailment.therapies.map((therapy) => (
                 <li key={therapy.id}>
                   <TherapyCard therapy={therapy} />
@@ -29,11 +26,11 @@ export function AilmentDetailPage({
               ))}
             </ul>
           ) : (
-            <p className="mt-4 text-muted">
+            <p className="text-muted">
               No therapies are listed for this ailment yet.
             </p>
           )}
-        </section>
+        </Section>
       </article>
     </div>
   );

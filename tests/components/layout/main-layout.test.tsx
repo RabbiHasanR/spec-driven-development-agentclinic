@@ -38,4 +38,17 @@ describe("MainLayout", () => {
     // Marked current on an ailment's detail page too.
     expect(link).toHaveAttribute("aria-current", "page");
   });
+
+  it("links to the staff dashboard from the main navigation", () => {
+    render(
+      <MainLayout>
+        <p>Page content</p>
+      </MainLayout>,
+    );
+
+    const nav = screen.getByRole("navigation", { name: "Main" });
+    expect(
+      within(nav).getByRole("link", { name: "Dashboard" }),
+    ).toHaveAttribute("href", "/dashboard");
+  });
 });
