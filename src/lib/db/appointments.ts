@@ -4,6 +4,7 @@ import { isUniqueViolation } from "./errors";
 import { generateReference as defaultGenerateReference } from "./reference";
 import { appointments, therapies, type NewAppointment } from "./schema";
 import type {
+  Appointment,
   AppointmentStatus,
   AppointmentWithTherapy,
   Therapy,
@@ -22,13 +23,20 @@ export type CreateAppointmentResult =
   | { ok: true; appointment: AppointmentWithTherapy }
   | { ok: false; reason: "slot-taken" };
 
+/** A held slot: when a booking starts and how long its session is. */
+export type BookedSlot = Pick<Appointment, "startsAt" | "durationMinutes">;
+
 /**
- * Start times a therapy is booked for, earliest first. Cancelled bookings
- * don't hold their slot, so they're left out.
+ * The slots a therapy is booked for, earliest first, each with the length
+ * it was booked at. Cancelled bookings don't hold their slot, so they're
+ * left out.
  */
-export function listBookedSlots(db: Db, therapyId: number): string[] {
+export function listBookedSlots(db: Db, therapyId: number): BookedSlot[] {
   return db
-    .select({ startsAt: appointments.startsAt })
+    .select({
+      startsAt: appointments.startsAt,
+      durationMinutes: appointments.durationMinutes,
+    })
     .from(appointments)
     .where(
       and(
@@ -37,8 +45,7 @@ export function listBookedSlots(db: Db, therapyId: number): string[] {
       ),
     )
     .orderBy(asc(appointments.startsAt))
-    .all()
-    .map(({ startsAt }) => startsAt);
+    .all();
 }
 
 /**
@@ -70,6 +77,7 @@ export function createAppointment(
           ...input,
           reference: generateReference(),
           therapyId: therapy.id,
+          durationMinutes: therapy.durationMinutes,
           createdAt: now.toISOString(),
         })
         .returning()

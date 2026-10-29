@@ -20,7 +20,7 @@ export function StaffBookingPage({
     { term: "Status", value: <StatusBadge status={appointment.status} /> },
     { term: "Therapy", value: appointment.therapy.name },
     { term: "When", value: formatSlot(appointment.startsAt) },
-    { term: "Length", value: `${appointment.therapy.durationMinutes} min` },
+    { term: "Length", value: `${appointment.durationMinutes} min` },
     { term: "Agent", value: appointment.agentName },
     { term: "Email", value: appointment.agentEmail },
   ];

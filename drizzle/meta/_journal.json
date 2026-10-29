@@ -43,6 +43,13 @@
       "when": 1793256979809,
       "tag": "0005_unique_catalog_names",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1793262256508,
+      "tag": "0006_appointment_duration",
+      "breakpoints": true
     }
   ]
 }

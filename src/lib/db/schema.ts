@@ -76,6 +76,11 @@ export const appointments = sqliteTable(
       // Deleting a therapy must never silently drop its bookings.
       .references(() => therapies.id, { onDelete: "restrict" }),
     startsAt: text("starts_at").notNull(),
+    /**
+     * Session length when booked. Kept per booking so later edits to the
+     * therapy's length never make old and new sessions overlap.
+     */
+    durationMinutes: integer("duration_minutes").notNull(),
     agentName: text("agent_name").notNull(),
     agentEmail: text("agent_email").notNull(),
     createdAt: text("created_at").notNull(),

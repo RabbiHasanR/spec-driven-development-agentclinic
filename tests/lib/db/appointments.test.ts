@@ -96,15 +96,24 @@ describe("appointment queries", () => {
     ).toThrow("Couldn't generate an unused booking reference.");
   });
 
-  it("lists only that therapy's booked slots, earliest first", () => {
+  it("lists only that therapy's booked slots, earliest first, with their lengths", () => {
     createAppointment(db, grounding, input("2026-11-03T09:00:00.000Z"));
     createAppointment(db, grounding, input());
     createAppointment(db, cooldown, input("2026-11-04T09:00:00.000Z"));
 
+    const length = grounding.durationMinutes;
     expect(listBookedSlots(db, grounding.id)).toEqual([
-      SLOT,
-      "2026-11-03T09:00:00.000Z",
+      { startsAt: SLOT, durationMinutes: length },
+      { startsAt: "2026-11-03T09:00:00.000Z", durationMinutes: length },
     ]);
+  });
+
+  it("records the therapy's length on each booking", () => {
+    const created = createAppointment(db, cooldown, input());
+
+    expect(created.ok && created.appointment.durationMinutes).toBe(
+      cooldown.durationMinutes,
+    );
   });
 
   it("finds a booking by reference with its therapy", () => {

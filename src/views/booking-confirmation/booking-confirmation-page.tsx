@@ -16,7 +16,7 @@ export function BookingConfirmationPage({
   const details = [
     { term: "Therapy", value: appointment.therapy.name },
     { term: "When", value: formatSlot(appointment.startsAt) },
-    { term: "Length", value: `${appointment.therapy.durationMinutes} min` },
+    { term: "Length", value: `${appointment.durationMinutes} min` },
     { term: "Name", value: appointment.agentName },
     { term: "Email", value: appointment.agentEmail },
     { term: "Reference", value: appointment.reference },

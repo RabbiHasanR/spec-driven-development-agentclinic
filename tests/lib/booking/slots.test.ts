@@ -86,9 +86,13 @@ describe("generateSlots", () => {
 describe("removeBookedSlots", () => {
   const at = (time: string) => `2026-11-02T${time}:00.000Z`;
   const HOURS = ["09:00", "10:00", "11:00", "12:00"].map(at);
+  const booked = (time: string, durationMinutes = 60) => ({
+    startsAt: at(time),
+    durationMinutes,
+  });
 
   it("removes a booked slot", () => {
-    expect(removeBookedSlots(HOURS, [at("10:00")], 60)).toEqual([
+    expect(removeBookedSlots(HOURS, [booked("10:00")], 60)).toEqual([
       at("09:00"),
       at("11:00"),
       at("12:00"),
@@ -97,15 +101,28 @@ describe("removeBookedSlots", () => {
 
   it("keeps slots that only touch a booking", () => {
     expect(
-      removeBookedSlots([at("09:00"), at("11:00")], [at("10:00")], 60),
+      removeBookedSlots([at("09:00"), at("11:00")], [booked("10:00")], 60),
     ).toEqual([at("09:00"), at("11:00")]);
   });
 
-  it("removes every slot a booking overlaps after the session got longer", () => {
-    // Booked at 10:00 when the therapy was an hour; it's now 90 minutes, so
-    // 09:00–10:30 and 11:00–12:30 would both overlap 10:00–11:30.
+  it("blocks slots a new, longer session would run into", () => {
+    // Booked 10:00–11:00; the therapy is now 90 minutes, so a 09:00 session
+    // (to 10:30) would overlap it, while one at 11:00 starts as it ends.
     const slots = [at("09:00"), at("11:00"), at("13:00")];
 
-    expect(removeBookedSlots(slots, [at("10:00")], 90)).toEqual([at("13:00")]);
+    expect(removeBookedSlots(slots, [booked("10:00")], 90)).toEqual([
+      at("11:00"),
+      at("13:00"),
+    ]);
+  });
+
+  it("keeps blocking a booking's full length after the session got shorter", () => {
+    // Booked 13:00–15:00 at 120 minutes; the therapy is now 60 minutes.
+    const slots = [at("12:00"), at("13:00"), at("14:00"), at("15:00")];
+
+    expect(removeBookedSlots(slots, [booked("13:00", 120)], 60)).toEqual([
+      at("12:00"),
+      at("15:00"),
+    ]);
   });
 });

@@ -97,10 +97,13 @@ describe("migrateDb", () => {
 
     migrateDb(db);
 
-    expect(getAppointmentByReference(db, "AC-OLD001")).toMatchObject({
+    const upgraded = getAppointmentByReference(db, "AC-OLD001");
+    expect(upgraded).toMatchObject({
       agentName: "Ada",
       status: "booked",
       statusChangedAt: null,
     });
+    // Filled from its therapy's length at upgrade time.
+    expect(upgraded?.durationMinutes).toBe(upgraded?.therapy.durationMinutes);
   });
 });
