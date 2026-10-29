@@ -4,12 +4,12 @@ import { beforeEach, describe, expect, it } from "vitest";
 import {
   createAppointment,
   getAppointmentByReference,
-  isUniqueViolation,
   listAppointments,
   listBookedSlots,
+  updateAppointmentStatus,
 } from "@/lib/db/appointments";
+import { appointments, therapies } from "@/lib/db/schema";
 import type { Db } from "@/lib/db/connection";
-import { therapies } from "@/lib/db/schema";
 import { getTherapyBySlug } from "@/lib/db/therapies";
 import type { Therapy } from "@/lib/db/types";
 import { createTestDb } from "../../helpers/db";
@@ -96,29 +96,24 @@ describe("appointment queries", () => {
     ).toThrow("Couldn't generate an unused booking reference.");
   });
 
-  it("lists only that therapy's booked slots, earliest first", () => {
+  it("lists only that therapy's booked slots, earliest first, with their lengths", () => {
     createAppointment(db, grounding, input("2026-11-03T09:00:00.000Z"));
     createAppointment(db, grounding, input());
     createAppointment(db, cooldown, input("2026-11-04T09:00:00.000Z"));
 
+    const length = grounding.durationMinutes;
     expect(listBookedSlots(db, grounding.id)).toEqual([
-      SLOT,
-      "2026-11-03T09:00:00.000Z",
+      { startsAt: SLOT, durationMinutes: length },
+      { startsAt: "2026-11-03T09:00:00.000Z", durationMinutes: length },
     ]);
   });
 
-  it("recognizes a unique violation wrapped by Drizzle", () => {
-    const sqliteError = Object.assign(
-      new Error("UNIQUE constraint failed: appointments.reference"),
-      { code: "SQLITE_CONSTRAINT_UNIQUE" },
-    );
-    const wrapped = new Error("Failed query: insert …", { cause: sqliteError });
+  it("records the therapy's length on each booking", () => {
+    const created = createAppointment(db, cooldown, input());
 
-    expect(isUniqueViolation(wrapped, "appointments.reference")).toBe(true);
-    expect(isUniqueViolation(wrapped, "appointments.starts_at")).toBe(false);
-    expect(
-      isUniqueViolation(new Error("other"), "appointments.reference"),
-    ).toBe(false);
+    expect(created.ok && created.appointment.durationMinutes).toBe(
+      cooldown.durationMinutes,
+    );
   });
 
   it("finds a booking by reference with its therapy", () => {
@@ -149,5 +144,63 @@ describe("appointment queries", () => {
       [SLOT, "grounding-session"],
       ["2026-11-04T09:00:00.000Z", "cooldown-retreat"],
     ]);
+  });
+
+  it("stores new bookings as booked, with no status change yet", () => {
+    const created = createAppointment(db, grounding, input());
+
+    expect(created.ok && created.appointment).toMatchObject({
+      status: "booked",
+      statusChangedAt: null,
+    });
+  });
+
+  it("frees a cancelled slot for another booking", () => {
+    const first = createAppointment(db, grounding, input());
+    if (!first.ok) throw new Error("expected a booking");
+    updateAppointmentStatus(
+      db,
+      first.appointment.reference,
+      "booked",
+      "cancelled",
+      NOW,
+    );
+
+    expect(listBookedSlots(db, grounding.id)).toEqual([]);
+    expect(createAppointment(db, grounding, input()).ok).toBe(true);
+    // The slot is held again: a second active booking is still refused.
+    expect(createAppointment(db, grounding, input())).toEqual({
+      ok: false,
+      reason: "slot-taken",
+    });
+  });
+
+  it("changes status only from the status the caller saw", () => {
+    const created = createAppointment(db, grounding, input());
+    if (!created.ok) throw new Error("expected a booking");
+    const { reference } = created.appointment;
+
+    expect(
+      updateAppointmentStatus(db, reference, "booked", "attended", NOW),
+    ).toBe(true);
+    // A second, stale click finds it already changed.
+    expect(
+      updateAppointmentStatus(db, reference, "booked", "no_show", NOW),
+    ).toBe(false);
+    expect(getAppointmentByReference(db, reference)).toMatchObject({
+      status: "attended",
+      statusChangedAt: NOW.toISOString(),
+    });
+  });
+
+  it("rejects an unknown status in the database itself", () => {
+    createAppointment(db, grounding, input());
+
+    expect(() =>
+      db
+        .update(appointments)
+        .set({ status: "bogus" as "booked" })
+        .run(),
+    ).toThrow(/CHECK constraint/);
   });
 });

@@ -1,7 +1,13 @@
 export { ArrowLink } from "./arrow-link";
 export { BackLink } from "./back-link";
 export { Button } from "./button";
+export { CheckboxGroup } from "./checkbox-group";
+export { ConfirmDisclosure } from "./confirm-disclosure";
+export { DetailList, type Detail } from "./detail-list";
 export { FieldError, fieldErrorId } from "./field-error";
+export { FormMessage } from "./form-message";
 export { PageHeader } from "./page-header";
 export { Section } from "./section";
+export { TextArea } from "./text-area";
 export { TextField } from "./text-field";
+export { useFocusFirstError } from "./use-focus-first-error";

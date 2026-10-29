@@ -49,9 +49,12 @@ export const APPOINTMENT: AppointmentWithTherapy = {
   reference: "AC-7F3K9Q",
   therapyId: THERAPIES[1].id,
   startsAt: "2026-11-02T09:00:00.000Z",
+  durationMinutes: THERAPIES[1].durationMinutes,
   agentName: "Ada",
   agentEmail: "ada@example.com",
   createdAt: "2026-10-28T12:30:00.000Z",
+  status: "booked",
+  statusChangedAt: null,
   therapy: THERAPIES[1],
 };
 

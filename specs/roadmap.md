@@ -55,6 +55,32 @@ Agents book care; staff run the schedule; the whole site gets polished.
 - Verify a fast, clean experience in a modern browser.
 - Cross-device pass: every page checked at 320px, 768px, and 1280px.
 
+## Phase 3 — MVP 🔍 In review
+
+Closes the mission's unmet promises and makes v1 shippable. Spec:
+[2026-10-29-mvp](2026-10-29-mvp/requirements.md). Implemented and passing
+every automated check; complete once the manual checks in its
+`validation.md` are ticked off and CI is green on the PR.
+
+### Staff auth
+
+- Staff log in with a shared password; the dashboard and every staff page
+  and action require a session.
+
+### Booking management
+
+- Staff cancel upcoming bookings (freeing the slot) and mark past ones
+  attended or no-show; agents see when a booking was cancelled.
+
+### Catalog management
+
+- Staff add, edit, and delete ailments and therapies, and link them.
+
+### Ship-readiness
+
+- CI on every push and PR, a production Docker image with a health check,
+  and migrations on start.
+
 ## Later (out of v1 scope)
 
 Messaging, notifications, billing, analytics, multi-clinic support.

@@ -16,5 +16,22 @@ describe("Booking confirmation page", () => {
     expect(definitionOf("Name")).toBe("Ada");
     expect(definitionOf("Email")).toBe("ada@example.com");
     expect(definitionOf("Reference")).toBe("AC-7F3K9Q");
+    expect(definitionOf("Status")).toBe("Booked");
+  });
+
+  it("tells the agent when the clinic has cancelled the booking", () => {
+    render(
+      <BookingConfirmationPage
+        appointment={{ ...APPOINTMENT, status: "cancelled" }}
+      />,
+    );
+
+    expect(
+      screen.getByRole("heading", { level: 1, name: "Booking cancelled" }),
+    ).toBeInTheDocument();
+    expect(definitionOf("Status")).toBe("Cancelled");
+    expect(
+      screen.getByRole("link", { name: /Find another time/ }),
+    ).toHaveAttribute("href", "/ailments");
   });
 });

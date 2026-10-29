@@ -65,7 +65,11 @@ describe("Project conventions", () => {
   it("gives every page that reads per-request data its own loading.tsx", () => {
     // A boundary higher up doesn't cover client navigations into the page,
     // so Next.js dev flags the route as blocking (see specs/tech-stack.md).
-    const pagesWithoutLoading = sourcesMatching(/\bconnection\(\)/)
+    // Reading the session (cookies) makes a page request-time just like
+    // connection() does.
+    const pagesWithoutLoading = sourcesMatching(
+      /\b(?:connection|requireStaff|isStaffSignedIn)\(\)|\bstaffLoader\(/,
+    )
       .filter((file) => file.startsWith("app/") && file.endsWith("/page.tsx"))
       .filter(
         (file) =>

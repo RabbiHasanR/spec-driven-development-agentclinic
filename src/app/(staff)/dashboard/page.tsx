@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { connection } from "next/server";
+import { requireStaff } from "@/lib/auth/staff";
 import { splitSchedule, summarizeSchedule } from "@/lib/booking/overview";
 import { listAppointments } from "@/lib/db/appointments";
 import { getDb } from "@/lib/db/client";
@@ -12,6 +13,7 @@ export const metadata: Metadata = {
 };
 
 export default async function Page() {
+  await requireStaff();
   // Bookings change constantly; read them per request.
   await connection();
   const now = new Date();

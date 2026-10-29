@@ -1,8 +1,14 @@
-import { asc, eq } from "drizzle-orm";
+import { and, asc, eq, ne } from "drizzle-orm";
 import type { Db } from "./connection";
+import { isUniqueViolation } from "./errors";
 import { generateReference as defaultGenerateReference } from "./reference";
 import { appointments, therapies, type NewAppointment } from "./schema";
-import type { AppointmentWithTherapy, Therapy } from "./types";
+import type {
+  Appointment,
+  AppointmentStatus,
+  AppointmentWithTherapy,
+  Therapy,
+} from "./types";
 
 /** The fields a caller supplies for a new booking; the rest are generated. */
 export type NewBooking = Pick<
@@ -17,32 +23,29 @@ export type CreateAppointmentResult =
   | { ok: true; appointment: AppointmentWithTherapy }
   | { ok: false; reason: "slot-taken" };
 
-/**
- * Whether `error` is SQLite rejecting a duplicate in `table.column`.
- *
- * The message names every column of the violated index, e.g.
- * "UNIQUE constraint failed: appointments.therapy_id, appointments.starts_at".
- * Drizzle throws the driver's error as-is here, but some of its sessions wrap
- * it in a `DrizzleQueryError` with the original as `cause`; both are handled.
- */
-export function isUniqueViolation(error: unknown, column: string): boolean {
-  const cause = error instanceof Error && error.cause ? error.cause : error;
-  return (
-    cause instanceof Error &&
-    (cause as { code?: string }).code === "SQLITE_CONSTRAINT_UNIQUE" &&
-    cause.message.includes(column)
-  );
-}
+/** A held slot: when a booking starts and how long its session is. */
+export type BookedSlot = Pick<Appointment, "startsAt" | "durationMinutes">;
 
-/** Start times already booked for a therapy, earliest first. */
-export function listBookedSlots(db: Db, therapyId: number): string[] {
+/**
+ * The slots a therapy is booked for, earliest first, each with the length
+ * it was booked at. Cancelled bookings don't hold their slot, so they're
+ * left out.
+ */
+export function listBookedSlots(db: Db, therapyId: number): BookedSlot[] {
   return db
-    .select({ startsAt: appointments.startsAt })
+    .select({
+      startsAt: appointments.startsAt,
+      durationMinutes: appointments.durationMinutes,
+    })
     .from(appointments)
-    .where(eq(appointments.therapyId, therapyId))
+    .where(
+      and(
+        eq(appointments.therapyId, therapyId),
+        ne(appointments.status, "cancelled"),
+      ),
+    )
     .orderBy(asc(appointments.startsAt))
-    .all()
-    .map(({ startsAt }) => startsAt);
+    .all();
 }
 
 /**
@@ -74,6 +77,7 @@ export function createAppointment(
           ...input,
           reference: generateReference(),
           therapyId: therapy.id,
+          durationMinutes: therapy.durationMinutes,
           createdAt: now.toISOString(),
         })
         .returning()
@@ -116,4 +120,33 @@ export function listAppointments(db: Db): AppointmentWithTherapy[] {
     .orderBy(asc(appointments.startsAt))
     .all()
     .map((row) => ({ ...row.appointments, therapy: row.therapies }));
+}
+
+/**
+ * Moves a booking from one status to another, only if it still has the
+ * `from` status. Two staff acting on the same booking at once can't both
+ * succeed: the second finds the status already changed.
+ *
+ * @param db - Database to write to.
+ * @param reference - The booking's reference.
+ * @param from - The status the caller saw.
+ * @param to - The new status. Callers check the transition is allowed.
+ * @param now - Recorded as the change time.
+ * @returns Whether the booking was updated.
+ */
+export function updateAppointmentStatus(
+  db: Db,
+  reference: string,
+  from: AppointmentStatus,
+  to: AppointmentStatus,
+  now: Date,
+): boolean {
+  const { changes } = db
+    .update(appointments)
+    .set({ status: to, statusChangedAt: now.toISOString() })
+    .where(
+      and(eq(appointments.reference, reference), eq(appointments.status, from)),
+    )
+    .run();
+  return changes === 1;
 }

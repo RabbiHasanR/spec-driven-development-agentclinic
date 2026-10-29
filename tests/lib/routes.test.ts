@@ -3,8 +3,11 @@ import {
   ailmentPath,
   bookingPath,
   bookTherapyPath,
+  editAilmentPath,
+  editTherapyPath,
   isActivePath,
   ROUTES,
+  staffBookingPath,
 } from "@/lib/routes";
 
 describe("routes", () => {
@@ -20,6 +23,19 @@ describe("routes", () => {
 
   it("builds a booking's confirmation path", () => {
     expect(bookingPath("AC-7F3K9Q")).toBe("/bookings/AC-7F3K9Q");
+  });
+
+  it("builds the staff edit paths for catalog entries", () => {
+    expect(editAilmentPath("prompt-fatigue")).toBe(
+      "/dashboard/catalog/ailments/prompt-fatigue/edit",
+    );
+    expect(editTherapyPath("grounding-session")).toBe(
+      "/dashboard/catalog/therapies/grounding-session/edit",
+    );
+  });
+
+  it("builds a booking's staff path under the dashboard", () => {
+    expect(staffBookingPath("AC-7F3K9Q")).toBe("/dashboard/bookings/AC-7F3K9Q");
   });
 
   it.each([

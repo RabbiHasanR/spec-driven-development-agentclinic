@@ -70,4 +70,20 @@ describe("summarizeSchedule", () => {
       summarizeSchedule(splitSchedule([YESTERDAY], NOW), NOW, "UTC"),
     ).toEqual({ today: 0, upcoming: 0, busiestTherapy: null });
   });
+
+  it("leaves cancelled and no-show bookings out of the numbers", () => {
+    const cancelled = { ...LATER_TODAY, status: "cancelled" as const };
+    const noShow = { ...EARLIER_TODAY, status: "no_show" as const };
+    const attended = { ...YESTERDAY, status: "attended" as const };
+    const schedule = splitSchedule(
+      [attended, noShow, cancelled, NEXT_WEEK],
+      NOW,
+    );
+
+    expect(summarizeSchedule(schedule, NOW, "UTC")).toEqual({
+      today: 0,
+      upcoming: 1,
+      busiestTherapy: { name: "Grounding Session", count: 1 },
+    });
+  });
 });

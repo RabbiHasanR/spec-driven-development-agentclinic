@@ -1,5 +1,6 @@
 import type { AppointmentWithTherapy } from "@/lib/db/types";
 import { CLINIC_TIME_ZONE } from "./schedule";
+import { COUNTED_STATUSES } from "./status";
 import { zonedDate } from "./zoned-time";
 
 /** Bookings split around now: next one first, and most recent past first. */
@@ -35,20 +36,26 @@ export function splitSchedule(
 }
 
 /**
- * Summarizes a schedule for the dashboard's overview strip.
+ * Summarizes a schedule for the dashboard's overview strip. Only bookings
+ * that are (or were) real visits count: cancelled and no-show bookings are
+ * left out.
  *
  * @param schedule - Output of {@link splitSchedule}.
  * @param now - The same time the schedule was split at.
  * @param timeZone - Zone that decides which bookings are "today".
  */
 export function summarizeSchedule(
-  { upcoming, past }: Schedule,
+  schedule: Schedule,
   now: Date,
   timeZone: string = CLINIC_TIME_ZONE,
 ): ScheduleOverview {
   const dayKey = (instant: number) =>
     JSON.stringify(zonedDate(instant, timeZone));
   const today = dayKey(now.getTime());
+  const counted = (list: readonly AppointmentWithTherapy[]) =>
+    list.filter((a) => COUNTED_STATUSES.includes(a.status));
+  const upcoming = counted(schedule.upcoming);
+  const past = counted(schedule.past);
 
   return {
     today: [...upcoming, ...past].filter(

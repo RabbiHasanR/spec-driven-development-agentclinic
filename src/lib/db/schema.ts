@@ -1,4 +1,6 @@
+import { sql } from "drizzle-orm";
 import {
+  check,
   index,
   integer,
   primaryKey,
@@ -7,21 +9,34 @@ import {
   uniqueIndex,
 } from "drizzle-orm/sqlite-core";
 
-export const ailments = sqliteTable("ailments", {
-  id: integer("id").primaryKey(),
-  slug: text("slug").notNull().unique(),
-  name: text("name").notNull(),
-  summary: text("summary").notNull(),
-  description: text("description").notNull(),
-});
+export const ailments = sqliteTable(
+  "ailments",
+  {
+    id: integer("id").primaryKey(),
+    slug: text("slug").notNull().unique(),
+    name: text("name").notNull(),
+    summary: text("summary").notNull(),
+    description: text("description").notNull(),
+  },
+  // Names are unique ignoring case, so staff can't add a look-alike entry.
+  (table) => [
+    uniqueIndex("ailments_name_unique").on(sql`lower(${table.name})`),
+  ],
+);
 
-export const therapies = sqliteTable("therapies", {
-  id: integer("id").primaryKey(),
-  slug: text("slug").notNull().unique(),
-  name: text("name").notNull(),
-  summary: text("summary").notNull(),
-  durationMinutes: integer("duration_minutes").notNull(),
-});
+export const therapies = sqliteTable(
+  "therapies",
+  {
+    id: integer("id").primaryKey(),
+    slug: text("slug").notNull().unique(),
+    name: text("name").notNull(),
+    summary: text("summary").notNull(),
+    durationMinutes: integer("duration_minutes").notNull(),
+  },
+  (table) => [
+    uniqueIndex("therapies_name_unique").on(sql`lower(${table.name})`),
+  ],
+);
 
 /** Many-to-many link: which therapies treat which ailments. */
 export const ailmentTherapies = sqliteTable(
@@ -42,6 +57,14 @@ export const ailmentTherapies = sqliteTable(
   ],
 );
 
+/** Where a booking is in the clinic's patient flow. */
+export const APPOINTMENT_STATUSES = [
+  "booked",
+  "attended",
+  "no_show",
+  "cancelled",
+] as const;
+
 /** A booked therapy slot. Times are ISO 8601 UTC strings. */
 export const appointments = sqliteTable(
   "appointments",
@@ -53,16 +76,32 @@ export const appointments = sqliteTable(
       // Deleting a therapy must never silently drop its bookings.
       .references(() => therapies.id, { onDelete: "restrict" }),
     startsAt: text("starts_at").notNull(),
+    /**
+     * Session length when booked. Kept per booking so later edits to the
+     * therapy's length never make old and new sessions overlap.
+     */
+    durationMinutes: integer("duration_minutes").notNull(),
     agentName: text("agent_name").notNull(),
     agentEmail: text("agent_email").notNull(),
     createdAt: text("created_at").notNull(),
+    status: text("status", { enum: APPOINTMENT_STATUSES })
+      .notNull()
+      .default("booked"),
+    /** When staff last changed `status`; `null` while still `booked`. */
+    statusChangedAt: text("status_changed_at"),
   },
   (table) => [
-    // One booking per therapy per slot, enforced by the database so two
-    // concurrent submissions can't both succeed.
-    uniqueIndex("appointments_therapy_slot_unique").on(
-      table.therapyId,
-      table.startsAt,
+    // One active booking per therapy per slot, enforced by the database so
+    // two concurrent submissions can't both succeed. Cancelled bookings are
+    // left out, so cancelling frees the slot for another agent.
+    uniqueIndex("appointments_therapy_slot_unique")
+      .on(table.therapyId, table.startsAt)
+      .where(sql`${table.status} <> 'cancelled'`),
+    check(
+      "appointments_status_check",
+      sql.raw(
+        `"status" IN (${APPOINTMENT_STATUSES.map((s) => `'${s}'`).join(", ")})`,
+      ),
     ),
     // Covers the dashboard's ordering by start time.
     index("appointments_starts_at_idx").on(table.startsAt),

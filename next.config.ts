@@ -1,7 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // The Docker build sets STANDALONE_BUILD=1 for a self-contained server in
+  // .next/standalone that traces only the node_modules it needs. Off by
+  // default: `next start` doesn't support standalone output.
+  output: process.env.STANDALONE_BUILD === "1" ? "standalone" : undefined,
   cacheComponents: true,
   partialPrefetching: true,
   turbopack: {

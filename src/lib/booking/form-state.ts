@@ -24,3 +24,14 @@ export type BookingAction = (
   state: BookingFormState,
   formData: FormData,
 ) => Promise<BookingFormState>;
+
+/** What the status action hands back when a change couldn't be made. */
+export type StatusFormState = { message?: string };
+
+export const INITIAL_STATUS_FORM_STATE: StatusFormState = {};
+
+/** The status Server Action, bound to its booking, as the form calls it. */
+export type StatusAction = (
+  state: StatusFormState,
+  formData: FormData,
+) => Promise<StatusFormState>;

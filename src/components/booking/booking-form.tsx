@@ -1,7 +1,12 @@
 "use client";
 
-import { useActionState, useEffect, useRef } from "react";
-import { Button, TextField } from "@/components/ui";
+import { useActionState, useRef } from "react";
+import {
+  Button,
+  FormMessage,
+  TextField,
+  useFocusFirstError,
+} from "@/components/ui";
 import type { SlotDay } from "@/lib/booking/format";
 import {
   INITIAL_BOOKING_FORM_STATE,
@@ -43,24 +48,11 @@ export function BookingForm({
   const { values, errors, message } = state;
   const formRef = useRef<HTMLFormElement>(null);
 
-  useEffect(() => {
-    const field = FIELD_ORDER.find((name) => errors[name]);
-    if (!field) return;
-    const control = formRef.current?.elements.namedItem(field);
-    const target = control instanceof RadioNodeList ? control[0] : control;
-    if (target instanceof HTMLElement) target.focus();
-  }, [errors]);
+  useFocusFirstError(formRef, errors, FIELD_ORDER);
 
   return (
     <form ref={formRef} action={formAction} className="space-y-6">
-      {message && (
-        <p
-          role="alert"
-          className="rounded-lg p-3 text-danger ring-1 ring-danger"
-        >
-          {message}
-        </p>
-      )}
+      <FormMessage message={message} />
       <div className="grid gap-4 md:grid-cols-2">
         <TextField
           name="agentName"

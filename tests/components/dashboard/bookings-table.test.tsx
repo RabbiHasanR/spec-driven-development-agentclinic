@@ -8,6 +8,7 @@ const ROW = [
   "Grounding Session",
   "Ada",
   "ada@example.com",
+  "Booked",
   "AC-7F3K9Q",
 ];
 
@@ -20,7 +21,7 @@ describe("BookingsTable", () => {
       within(table)
         .getAllByRole("columnheader")
         .map((th) => th.textContent),
-    ).toEqual(["When", "Therapy", "Agent", "Email", "Reference"]);
+    ).toEqual(["When", "Therapy", "Agent", "Email", "Status", "Reference"]);
     expect(
       within(table)
         .getAllByRole("cell")
@@ -36,5 +37,16 @@ describe("BookingsTable", () => {
     ).getAllByRole("listitem");
     expect(cards).toHaveLength(1);
     for (const value of ROW) expect(cards[0]).toHaveTextContent(value);
+  });
+
+  it("links each booking to its staff page", () => {
+    render(<BookingsTable caption="Upcoming" appointments={[APPOINTMENT]} />);
+
+    // Once in the table, once in the phone cards.
+    for (const link of screen.getAllByRole("link", {
+      name: "Manage booking AC-7F3K9Q",
+    })) {
+      expect(link).toHaveAttribute("href", "/dashboard/bookings/AC-7F3K9Q");
+    }
   });
 });

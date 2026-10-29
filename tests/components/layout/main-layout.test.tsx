@@ -5,6 +5,10 @@ import { MainLayout } from "@/components/layout";
 vi.mock("next/navigation", () => ({
   usePathname: () => "/ailments/prompt-fatigue",
 }));
+// Reads the session cookie; covered in staff-nav.test.tsx.
+vi.mock("@/components/layout/staff-nav", () => ({
+  StaffNav: () => <li>Staff items</li>,
+}));
 
 describe("MainLayout", () => {
   it("renders header, main content, and footer landmarks", () => {
@@ -39,7 +43,7 @@ describe("MainLayout", () => {
     expect(link).toHaveAttribute("aria-current", "page");
   });
 
-  it("links to the staff dashboard from the main navigation", () => {
+  it("adds the staff items to the main navigation", () => {
     render(
       <MainLayout>
         <p>Page content</p>
@@ -47,8 +51,9 @@ describe("MainLayout", () => {
     );
 
     const nav = screen.getByRole("navigation", { name: "Main" });
+    expect(nav).toHaveTextContent("Staff items");
     expect(
-      within(nav).getByRole("link", { name: "Dashboard" }),
-    ).toHaveAttribute("href", "/dashboard");
+      within(nav).queryByRole("link", { name: "Dashboard" }),
+    ).not.toBeInTheDocument();
   });
 });
