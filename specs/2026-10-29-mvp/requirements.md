@@ -201,3 +201,8 @@ Out of scope:
 | esbuild is a direct devDependency            | It bundles the DB scripts for the image; it was only a transitive dependency                      |
 | `.env` kept out of the image twice           | Next.js copies `.env` into standalone output; `.dockerignore` plus a delete in the build stage    |
 | FK errors matched by message                 | SQLite reports `ON DELETE RESTRICT` as `SQLITE_CONSTRAINT_TRIGGER`                                |
+| Bookings store their own length (`0006`)     | Review: shortening a therapy let new bookings overlap old ones                                    |
+| `STAFF_PASSWORD` needs 12+ chars             | Review: no rate limiting, and the example shipped a working "change-me"                           |
+| Session key includes the password            | Review: changing the password should sign everyone out                                            |
+| `0005` renames case-duplicate names          | Review: the unique index would otherwise fail the upgrade and restart-loop the container          |
+| No-therapy state on "New ailment"            | Review: the form was a dead end on a fresh, unseeded database                                     |

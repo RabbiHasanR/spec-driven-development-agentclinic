@@ -20,14 +20,14 @@ npm run dev           # start the dev server at http://localhost:3000
 
 ### Environment
 
-| Variable         | Required | What it does                                                       |
-| ---------------- | -------- | ------------------------------------------------------------------ |
-| `DATABASE_URL`   | yes      | SQLite file path, e.g. `data/agentclinic.db`                       |
-| `STAFF_PASSWORD` | yes      | The shared staff password for `/login`                             |
-| `SESSION_SECRET` | yes      | Signs staff session cookies; 32+ chars (`openssl rand -base64 32`) |
+| Variable         | Required | What it does                                                                      |
+| ---------------- | -------- | --------------------------------------------------------------------------------- |
+| `DATABASE_URL`   | yes      | SQLite file path, e.g. `data/agentclinic.db`                                      |
+| `STAFF_PASSWORD` | yes      | The shared staff password for `/login`; 12+ chars. Changing it signs everyone out |
+| `SESSION_SECRET` | yes      | Signs staff session cookies; 32+ chars (`openssl rand -base64 32`)                |
 
-Without `STAFF_PASSWORD` and a long enough `SESSION_SECRET`, staff pages
-show an error page instead of any data; agent pages keep working.
+If either is missing or too short, staff pages show an error page instead of
+any data; agent pages keep working.
 
 ### Pages
 
@@ -62,9 +62,11 @@ An agent opens an ailment, picks a therapy, and books an open slot. Slots are
 generated, not stored: weekdays from 09:00 clinic time, spaced by the therapy's
 length and ending by 17:00, for the next 14 days (rules in
 `src/lib/booking/schedule.ts`). The form posts to a Server Action that
-re-validates everything and inserts the booking; a unique
-`(therapy_id, starts_at)` index makes double booking impossible, even for
-simultaneous submissions. The agent then lands on `/bookings/<reference>`.
+re-validates everything and inserts the booking with its session length; a
+unique `(therapy_id, starts_at)` index over active (not cancelled) bookings
+makes double booking impossible, even for simultaneous submissions. Each
+booking blocks its own time range, so later changes to a therapy's length
+never make sessions overlap. The agent then lands on `/bookings/<reference>`.
 
 ### Staff
 
@@ -84,20 +86,20 @@ staff have changed.
 
 ## Scripts
 
-| Script                  | What it does                                           |
-| ----------------------- | ------------------------------------------------------ |
-| `npm run dev`           | Start the Next.js dev server with hot reload           |
-| `npm run build`         | Production build (includes type checking)              |
-| `npm run build:scripts` | Bundle `db:migrate`/`db:seed` to plain JS (for Docker) |
-| `npm start`             | Serve the production build                             |
-| `npm run lint`          | Lint with ESLint (Next.js + Prettier configs)          |
-| `npm run format`        | Format all files with Prettier                         |
-| `npm run format:check`  | Check formatting without writing                       |
-| `npm test`              | Run the Vitest suite once                              |
-| `npm run test:watch`    | Run Vitest in watch mode                               |
-| `npm run db:generate`   | Generate a SQL migration from the schema               |
-| `npm run db:migrate`    | Apply pending migrations to the database               |
-| `npm run db:seed`       | Add missing seed data; keeps staff edits               |
+| Script                  | What it does                                                         |
+| ----------------------- | -------------------------------------------------------------------- |
+| `npm run dev`           | Start the Next.js dev server with hot reload                         |
+| `npm run build`         | Production build (includes type checking)                            |
+| `npm run build:scripts` | Bundle `db:migrate`/`db:seed` to plain JS (for Docker)               |
+| `npm start`             | Serve the production build                                           |
+| `npm run lint`          | Lint with ESLint (Next.js + Prettier configs)                        |
+| `npm run format`        | Format all files with Prettier                                       |
+| `npm run format:check`  | Check formatting without writing                                     |
+| `npm test`              | Run the Vitest suite once                                            |
+| `npm run test:watch`    | Run Vitest in watch mode                                             |
+| `npm run db:generate`   | Generate a SQL migration from the schema (read it before committing) |
+| `npm run db:migrate`    | Apply pending migrations to the database                             |
+| `npm run db:seed`       | Add missing seed data; keeps staff edits                             |
 
 ## Running with Docker
 
@@ -127,12 +129,12 @@ src/
 │   ├── layout.tsx        # Root <html>/<body>, metadata, global CSS import
 │   ├── not-found.tsx     # 404 for unmatched URLs (adds <MainLayout> itself)
 │   ├── (site)/           # Route group (not part of the URL)
-│       ├── layout.tsx    # Wraps public pages in <MainLayout>
-│       ├── error.tsx     # Error boundary with a retry button
-│       ├── page.tsx      # "/" → renders <HomePage />
-│       ├── ailments/     # "/ailments" and "/ailments/[slug]" (+ loading, not-found)
-│       ├── therapies/    # "/therapies/[slug]/book" (+ loading, not-found)
-│       └── bookings/     # "/bookings/[reference]" (+ loading, not-found)
+│   │   ├── layout.tsx    # Wraps public pages in <MainLayout>
+│   │   ├── error.tsx     # Error boundary with a retry button
+│   │   ├── page.tsx      # "/" → renders <HomePage />
+│   │   ├── ailments/     # "/ailments" and "/ailments/[slug]" (+ loading, not-found)
+│   │   ├── therapies/    # "/therapies/[slug]/book" (+ loading, not-found)
+│   │   └── bookings/     # "/bookings/[reference]" (+ loading, not-found)
 │   ├── (staff)/          # Staff pages (own layout and error boundary)
 │   │   ├── login/        # "/login"
 │   │   └── dashboard/    # "/dashboard", bookings/[reference], catalog/…
@@ -169,7 +171,7 @@ scripts/                  # db:migrate and db:seed entry points (run with tsx),
 Dockerfile, docker-compose.yml
 tests/                    # All tests, mirroring src/
 ├── setup.ts
-├── helpers/              # In-memory test DB and fixtures
+├── helpers/              # Test DB, fixtures, and Next.js/session/FormData stand-ins
 ├── app/                  # Route-level tests (metadata, notFound)
 ├── lib/
 ├── components/

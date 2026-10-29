@@ -27,6 +27,19 @@ All notable changes to AgentClinic, grouped by date (newest first).
   and smoke test in CI.
 - Updated the README and tech stack for staff features and Docker, and added
   Phase 3 to the roadmap.
+- Fixed new bookings overlapping existing ones after staff shortened a
+  therapy: each booking now keeps the length it was booked at.
+- Fixed the therapy length field losing its styling and 44px tap target;
+  field hints are now read out by screen readers.
+- Refused status changes now say why (e.g. "has started, so it can't be
+  cancelled"), and a cancelled booking's tab title says "Booking cancelled".
+- Staff passwords now need 12+ characters, and changing the password signs
+  everyone out.
+- "New ailment" now points to adding a therapy first when there are none,
+  and upgrading a database with names that differ only in case no longer
+  fails.
+- Shared one staff page loader and the editor's delete form, and moved route
+  and action tests onto shared helpers that sign in for real.
 
 ## 2026-10-28
 
