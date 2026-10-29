@@ -12,8 +12,8 @@ const mocks = vi.hoisted(() => ({
   cookies: undefined as FakeCookieStore | undefined,
 }));
 
-vi.mock("server-only", () => ({}));
 vi.mock("next/headers", () => ({ cookies: async () => mocks.cookies }));
+vi.mock("next/server", () => ({ connection: async () => {} }));
 vi.mock("next/navigation", () => ({
   redirect: (url: string) => {
     throw new Error(`NEXT_REDIRECT ${url}`);

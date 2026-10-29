@@ -2,6 +2,7 @@ import "server-only";
 
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 import { ROUTES } from "@/lib/routes";
 import { readAuthConfig, SESSION_COOKIE, verifySession } from "./session";
 
@@ -39,6 +40,9 @@ async function sessionState(): Promise<SessionState> {
   const token = (await cookies()).get(SESSION_COOKIE)?.value;
   const config = readAuthConfig();
   if (!config) return "misconfigured";
+  // Checking expiry reads the clock, which Cache Components only allows
+  // once the render is tied to a real request.
+  await connection();
   return verifySession(token, config.secret, new Date())
     ? "signed-in"
     : "signed-out";
