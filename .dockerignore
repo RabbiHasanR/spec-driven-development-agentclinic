@@ -1,0 +1,17 @@
+# Keep the build context small and free of secrets and local data.
+.git
+.github
+.claude
+node_modules
+.next
+build
+coverage
+data
+*.db
+*.db-journal
+# Secrets: never bake .env into an image (Next.js copies it into standalone
+# output). Pass env vars at run time instead.
+.env
+.env.*
+!.env.example
+npm-debug.log*

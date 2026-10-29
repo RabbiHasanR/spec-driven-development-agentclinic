@@ -1,0 +1,19 @@
+# Run the production image locally:
+#   docker compose up --build              # migrates, then serves :3000
+#   docker compose run --rm app seed       # load the sample catalog (once)
+# STAFF_PASSWORD and SESSION_SECRET are read from .env (see .env.example).
+services:
+  app:
+    build: .
+    image: agentclinic:local
+    ports:
+      - "3000:3000"
+    environment:
+      STAFF_PASSWORD: ${STAFF_PASSWORD:?Set STAFF_PASSWORD in .env}
+      SESSION_SECRET: ${SESSION_SECRET:?Set SESSION_SECRET in .env}
+    volumes:
+      - agentclinic-data:/app/data
+    restart: unless-stopped
+
+volumes:
+  agentclinic-data:
