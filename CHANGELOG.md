@@ -2,6 +2,32 @@
 
 All notable changes to AgentClinic, grouped by date (newest first).
 
+## 2026-10-29
+
+- Added the Phase 3 MVP spec (requirements, plan, validation) and a
+  `/feature-spec` skill that drafts future phase specs.
+- Added CI on GitHub Actions (lint, format, tests, build) and pinned Node 24.
+- Added staff sign-in at `/login` with a shared password and a signed 8-hour
+  session cookie; the dashboard and every staff page and action now require
+  it, and the header shows staff links only when signed in.
+- Fixed every page logging "unstable `new Date()` while prerendering" from
+  the session check in the header.
+- Staff can now cancel an upcoming booking (its slot opens up again) or mark
+  a past one attended or a no-show, from `/dashboard/bookings/<reference>`;
+  the dashboard shows each booking's status, and agents see when a booking
+  was cancelled.
+- Staff can now add, edit, and delete ailments and therapies at
+  `/dashboard/catalog`; slugs never change, names are unique ignoring case,
+  and therapies with bookings or that are an ailment's only therapy can't
+  be deleted.
+- Changed `db:seed` to only add missing rows, so it never overwrites staff
+  edits.
+- Added `GET /api/health`, a production Docker image (non-root, migrations
+  on start, SQLite on a volume), `docker-compose.yml`, and an image build
+  and smoke test in CI.
+- Updated the README and tech stack for staff features and Docker, and added
+  Phase 3 to the roadmap.
+
 ## 2026-10-28
 
 - Added the Phase 2 booking and clinic operations spec (requirements, plan,

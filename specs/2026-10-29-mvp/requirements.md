@@ -187,3 +187,17 @@ Out of scope:
   client.
 - TypeScript strict mode; the Phase 2 migration must still apply, and this
   phase's migration must apply to a Phase 2 database with bookings intact.
+
+## Changes during implementation
+
+| What changed                                 | Why                                                                                               |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| Header shows staff links only when signed in | A Dashboard link that bounces visitors to a login is noise; it streams in behind Suspense         |
+| Session check awaits `connection()`          | Cache Components treats `new Date()` as unstable even after `cookies()`; every page logged errors |
+| Migration `0004` hand-edited                 | drizzle-kit's rebuild copied the new columns from the old table, failing on every database        |
+| Confirmations use native `<details>`         | Works before JavaScript loads and with the keyboard (`ConfirmDisclosure`)                         |
+| Standalone output is opt-in                  | `next start` doesn't support it; the Docker build sets `STANDALONE_BUILD=1`                       |
+| Container can seed (`seed` command)          | A fresh volume has an empty catalog; seeding stays manual so deleted rows don't come back         |
+| esbuild is a direct devDependency            | It bundles the DB scripts for the image; it was only a transitive dependency                      |
+| `.env` kept out of the image twice           | Next.js copies `.env` into standalone output; `.dockerignore` plus a delete in the build stage    |
+| FK errors matched by message                 | SQLite reports `ON DELETE RESTRICT` as `SQLITE_CONSTRAINT_TRIGGER`                                |
