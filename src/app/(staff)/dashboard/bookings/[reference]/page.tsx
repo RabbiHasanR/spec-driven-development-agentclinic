@@ -4,7 +4,7 @@ import { connection } from "next/server";
 import { cache } from "react";
 import { requireStaff } from "@/lib/auth/staff";
 import { changeBookingStatus } from "@/lib/booking/actions";
-import { allowedTransitions } from "@/lib/booking/status";
+import { allowedChanges } from "@/lib/booking/status";
 import { getAppointmentByReference } from "@/lib/db/appointments";
 import { getDb } from "@/lib/db/client";
 import { StaffBookingPage } from "@/views/staff-booking/staff-booking-page";
@@ -32,7 +32,7 @@ export default async function Page({
   return (
     <StaffBookingPage
       appointment={appointment}
-      allowed={allowedTransitions(appointment, new Date())}
+      allowed={allowedChanges(appointment, new Date())}
       action={changeBookingStatus.bind(null, reference)}
     />
   );

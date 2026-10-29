@@ -15,9 +15,12 @@ const loadAppointment = cache(async (reference: string) => {
 export async function generateMetadata({
   params,
 }: PageProps<"/bookings/[reference]">): Promise<Metadata> {
-  await loadAppointment((await params).reference);
+  const { status } = await loadAppointment((await params).reference);
   // The page shows the agent's name and email; keep it out of search engines.
-  return { title: "Booking confirmed", robots: { index: false } };
+  return {
+    title: status === "cancelled" ? "Booking cancelled" : "Booking confirmed",
+    robots: { index: false },
+  };
 }
 
 export default async function Page({

@@ -2,7 +2,7 @@ import { StatusActions, StatusBadge } from "@/components/dashboard";
 import { BackLink, DetailList, PageHeader, Section } from "@/components/ui";
 import { formatSlot } from "@/lib/booking/format";
 import type { StatusAction } from "@/lib/booking/form-state";
-import { STATUS_LABELS, type StatusChange } from "@/lib/booking/status";
+import { STATUS_SENTENCES, type StatusChange } from "@/lib/booking/status";
 import type { AppointmentWithTherapy } from "@/lib/db/types";
 import { ROUTES } from "@/lib/routes";
 
@@ -40,8 +40,8 @@ export function StaffBookingPage({
           <StatusActions action={action} allowed={allowed} />
         ) : (
           <p className="text-muted">
-            This booking is {STATUS_LABELS[appointment.status].toLowerCase()};
-            no further changes.
+            This booking {STATUS_SENTENCES[appointment.status]}; no further
+            changes.
           </p>
         )}
       </Section>

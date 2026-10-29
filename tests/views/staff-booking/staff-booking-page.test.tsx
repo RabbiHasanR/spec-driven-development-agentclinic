@@ -51,7 +51,9 @@ describe("Staff booking page", () => {
 
     expect(definitionOf("Status")).toBe("No-show");
     expect(
-      screen.getByText("This booking is no-show; no further changes."),
+      screen.getByText(
+        "This booking was marked a no-show; no further changes.",
+      ),
     ).toBeInTheDocument();
     expect(screen.queryByRole("button")).not.toBeInTheDocument();
   });

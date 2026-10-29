@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { allowedTransitions, parseStatusChange } from "@/lib/booking/status";
+import {
+  allowedChanges,
+  parseStatusChange,
+  whyChangeNotAllowed,
+} from "@/lib/booking/status";
 
 const STARTS_AT = "2026-11-02T09:00:00.000Z";
 const BEFORE = new Date("2026-11-02T08:59:59.000Z");
@@ -11,17 +15,15 @@ const booking = (status: "booked" | "attended" | "no_show" | "cancelled") => ({
   startsAt: STARTS_AT,
 });
 
-describe("allowedTransitions", () => {
+describe("allowedChanges", () => {
   it("allows only cancelling before the slot starts", () => {
-    expect(allowedTransitions(booking("booked"), BEFORE)).toEqual([
-      "cancelled",
-    ]);
+    expect(allowedChanges(booking("booked"), BEFORE)).toEqual(["cancelled"]);
   });
 
   it.each([AT_START, AFTER])(
     "allows marking attended or no-show once started (%s)",
     (now) => {
-      expect(allowedTransitions(booking("booked"), now)).toEqual([
+      expect(allowedChanges(booking("booked"), now)).toEqual([
         "attended",
         "no_show",
       ]);
@@ -31,8 +33,8 @@ describe("allowedTransitions", () => {
   it.each(["attended", "no_show", "cancelled"] as const)(
     "allows nothing from the final status %s",
     (status) => {
-      expect(allowedTransitions(booking(status), BEFORE)).toEqual([]);
-      expect(allowedTransitions(booking(status), AFTER)).toEqual([]);
+      expect(allowedChanges(booking(status), BEFORE)).toEqual([]);
+      expect(allowedChanges(booking(status), AFTER)).toEqual([]);
     },
   );
 });
@@ -48,4 +50,34 @@ describe("parseStatusChange", () => {
       expect(parseStatusChange(value)).toBeUndefined();
     },
   );
+});
+
+describe("whyChangeNotAllowed", () => {
+  it("explains a cancel after the slot started, and what to do instead", () => {
+    expect(whyChangeNotAllowed(booking("booked"), "cancelled", AFTER)).toBe(
+      "This appointment has started, so it can’t be cancelled. Mark it attended or a no-show instead.",
+    );
+  });
+
+  it("explains marking attendance before the slot starts", () => {
+    expect(whyChangeNotAllowed(booking("booked"), "no_show", BEFORE)).toBe(
+      "This appointment hasn’t started yet, so it can’t be marked a no-show.",
+    );
+  });
+
+  it.each([
+    ["cancelled", "This booking was cancelled, so it can’t change any more."],
+    [
+      "no_show",
+      "This booking was marked a no-show, so it can’t change any more.",
+    ],
+    [
+      "attended",
+      "This booking was marked attended, so it can’t change any more.",
+    ],
+  ] as const)("explains a final %s booking", (status, message) => {
+    expect(whyChangeNotAllowed(booking(status), "cancelled", BEFORE)).toBe(
+      message,
+    );
+  });
 });

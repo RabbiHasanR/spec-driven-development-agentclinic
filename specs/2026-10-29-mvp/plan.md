@@ -53,7 +53,7 @@ and a conventional commit.
    (`WHERE status <> 'cancelled'`). Generate the migration; confirm it applies
    to a Phase 2 DB with bookings, and that existing rows become `booked`.
 2. Export `AppointmentStatus` from `src/lib/db/types.ts`.
-3. Add pure `allowedTransitions(appointment, now)` in
+3. Add pure `allowedChanges(appointment, now)` in
    `src/lib/booking/status.ts` (cancel only before start; attended or no-show
    only after start; final states have none).
 4. Queries in `src/lib/db/appointments.ts`: `updateAppointmentStatus(db,

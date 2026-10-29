@@ -1,6 +1,9 @@
 // @vitest-environment node
 import { beforeAll, describe, expect, it, vi } from "vitest";
-import { createAppointment } from "@/lib/db/appointments";
+import {
+  createAppointment,
+  updateAppointmentStatus,
+} from "@/lib/db/appointments";
 import type { Db } from "@/lib/db/connection";
 import { getTherapyBySlug } from "@/lib/db/therapies";
 import { createTestDb } from "../../../../helpers/db";
@@ -25,6 +28,7 @@ const propsFor = (reference: string) => ({
 
 describe("/bookings/[reference] route", () => {
   let reference: string;
+  let cancelledReference: string;
 
   beforeAll(() => {
     mocks.db = createTestDb();
@@ -36,11 +40,33 @@ describe("/bookings/[reference] route", () => {
     });
     if (!result.ok) throw new Error("expected a booking");
     reference = result.appointment.reference;
+    const second = createAppointment(mocks.db, therapy, {
+      agentName: "Bob",
+      agentEmail: "bob@example.com",
+      startsAt: "2026-11-03T09:00:00.000Z",
+    });
+    if (!second.ok) throw new Error("expected a booking");
+    cancelledReference = second.appointment.reference;
   });
 
   it("keeps the page, which shows contact details, out of search engines", async () => {
     expect(await generateMetadata(propsFor(reference))).toEqual({
       title: "Booking confirmed",
+      robots: { index: false },
+    });
+  });
+
+  it("titles a cancelled booking as cancelled", async () => {
+    updateAppointmentStatus(
+      mocks.db!,
+      cancelledReference,
+      "booked",
+      "cancelled",
+      new Date(),
+    );
+
+    expect(await generateMetadata(propsFor(cancelledReference))).toEqual({
+      title: "Booking cancelled",
       robots: { index: false },
     });
   });

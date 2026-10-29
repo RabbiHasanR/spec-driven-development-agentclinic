@@ -3,14 +3,28 @@
 import type { Appointment, AppointmentStatus } from "@/lib/db/types";
 
 /** Statuses staff can move a booking to; `booked` is only the starting one. */
-export type StatusChange = Exclude<AppointmentStatus, "booked">;
+export const STATUS_CHANGES = [
+  "attended",
+  "no_show",
+  "cancelled",
+] as const satisfies readonly AppointmentStatus[];
 
-/** Every status, as staff and agents read it. */
+export type StatusChange = (typeof STATUS_CHANGES)[number];
+
+/** Every status as a short label, e.g. for badges. */
 export const STATUS_LABELS: Record<AppointmentStatus, string> = {
   booked: "Booked",
   attended: "Attended",
   no_show: "No-show",
   cancelled: "Cancelled",
+};
+
+/** Every status in a sentence: "This booking was cancelled". */
+export const STATUS_SENTENCES: Record<AppointmentStatus, string> = {
+  booked: "is booked",
+  attended: "was marked attended",
+  no_show: "was marked a no-show",
+  cancelled: "was cancelled",
 };
 
 /** The button text for each change. */
@@ -26,6 +40,8 @@ export const COUNTED_STATUSES: readonly AppointmentStatus[] = [
   "attended",
 ];
 
+type BookingState = Pick<Appointment, "status" | "startsAt">;
+
 /**
  * The status changes staff may make to a booking right now.
  *
@@ -36,17 +52,41 @@ export const COUNTED_STATUSES: readonly AppointmentStatus[] = [
  * @param appointment - The booking's current status and start time.
  * @param now - The current time; tests pass a fixed clock.
  */
-export function allowedTransitions(
-  { status, startsAt }: Pick<Appointment, "status" | "startsAt">,
+export function allowedChanges(
+  { status, startsAt }: BookingState,
   now: Date,
 ): StatusChange[] {
   if (status !== "booked") return [];
-  return now.toISOString() < startsAt ? ["cancelled"] : ["attended", "no_show"];
+  return hasStarted(startsAt, now) ? ["attended", "no_show"] : ["cancelled"];
+}
+
+/**
+ * Why a change isn't allowed right now, in words staff can act on. Covers
+ * the usual causes: the clock moved past the start, or someone else already
+ * changed the booking.
+ *
+ * @param appointment - The booking as it is now.
+ * @param change - The change that was refused.
+ * @param now - The current time.
+ */
+export function whyChangeNotAllowed(
+  appointment: BookingState,
+  change: StatusChange,
+  now: Date,
+): string {
+  if (appointment.status !== "booked") {
+    return `This booking ${STATUS_SENTENCES[appointment.status]}, so it can’t change any more.`;
+  }
+  return hasStarted(appointment.startsAt, now)
+    ? "This appointment has started, so it can’t be cancelled. Mark it attended or a no-show instead."
+    : `This appointment hasn’t started yet, so it can’t be ${change === "attended" ? "marked attended" : "marked a no-show"}.`;
 }
 
 /** Narrows a submitted form value to a status change, if it is one. */
 export function parseStatusChange(value: unknown): StatusChange | undefined {
-  return typeof value === "string" && Object.hasOwn(CHANGE_LABELS, value)
-    ? (value as StatusChange)
-    : undefined;
+  return STATUS_CHANGES.find((change) => change === value);
+}
+
+function hasStarted(startsAt: string, now: Date): boolean {
+  return now.toISOString() >= startsAt;
 }

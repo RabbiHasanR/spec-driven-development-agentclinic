@@ -184,16 +184,28 @@ describe("changeBookingStatus", () => {
     const state = await change("attended");
 
     expect(state.message).toBe(
-      "That change isn't possible any more. This booking is booked.",
+      "This appointment hasn’t started yet, so it can’t be marked attended.",
     );
     expect(statusOf()).toBe("booked");
   });
 
   it("refuses a status that isn't a change", async () => {
     for (const status of ["booked", "bogus"]) {
-      expect((await change(status)).message).toMatch(/isn't possible/);
+      expect((await change(status)).message).toBe(
+        "That isn’t a change staff can make.",
+      );
     }
     expect(statusOf()).toBe("booked");
+  });
+
+  it("says when a cancel comes after the slot started", async () => {
+    vi.setSystemTime(new Date(SLOT));
+
+    const state = await change("cancelled");
+
+    expect(state.message).toMatch(/has started, so it can’t be cancelled/);
+    expect(statusOf()).toBe("booked");
+    vi.setSystemTime(NOW);
   });
 
   it("reports a booking another staff member already changed", async () => {
@@ -202,7 +214,7 @@ describe("changeBookingStatus", () => {
     const state = await change("cancelled");
 
     expect(state.message).toBe(
-      "That change isn't possible any more. This booking is cancelled.",
+      "This booking was cancelled, so it can’t change any more.",
     );
     expect(mocks.refresh).toHaveBeenCalledOnce();
   });

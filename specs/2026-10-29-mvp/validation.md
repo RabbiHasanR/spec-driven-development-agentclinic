@@ -40,7 +40,7 @@ Staff auth:
 Booking management:
 
 - The migration turns existing appointments into `booked` and keeps them all.
-- `allowedTransitions()` (fixed clock): cancel only before start; attended
+- `allowedChanges()` (fixed clock): cancel only before start; attended
   and no-show only after start; none from a final state.
 - `updateAppointmentStatus()` fails when the current status isn't the
   expected one (two staff clicks can't both apply).

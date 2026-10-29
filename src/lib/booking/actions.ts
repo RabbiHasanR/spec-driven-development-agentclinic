@@ -13,7 +13,11 @@ import { getTherapyBySlug } from "@/lib/db/therapies";
 import { bookingPath, staffBookingPath } from "@/lib/routes";
 import { listOpenSlots } from "./availability";
 import type { BookingFormState, StatusFormState } from "./form-state";
-import { allowedTransitions, parseStatusChange, STATUS_LABELS } from "./status";
+import {
+  allowedChanges,
+  parseStatusChange,
+  whyChangeNotAllowed,
+} from "./status";
 import {
   readBookingForm,
   SLOT_TAKEN_MESSAGE,
@@ -82,21 +86,20 @@ export async function changeBookingStatus(
   await requireStaff();
   const db = getDb();
   const now = new Date();
-  const to = parseStatusChange(formData.get("status"));
+  const change = parseStatusChange(formData.get("status"));
+  if (!change) return { message: "That isn’t a change staff can make." };
   const appointment = getAppointmentByReference(db, reference);
   if (!appointment) return { message: "This booking no longer exists." };
 
-  if (
-    !to ||
-    !allowedTransitions(appointment, now).includes(to) ||
-    !updateAppointmentStatus(db, reference, appointment.status, to, now)
-  ) {
-    // Usually stale: another staff member or the clock moved it on.
+  const applied =
+    allowedChanges(appointment, now).includes(change) &&
+    updateAppointmentStatus(db, reference, appointment.status, change, now);
+  if (!applied) {
+    // Usually stale: the slot started, or another staff member got there
+    // first. Refresh so the page shows the booking as it is now.
     refresh();
-    const current = getAppointmentByReference(db, reference)?.status;
-    return {
-      message: `That change isn't possible any more. This booking is ${STATUS_LABELS[current ?? appointment.status].toLowerCase()}.`,
-    };
+    const current = getAppointmentByReference(db, reference) ?? appointment;
+    return { message: whyChangeNotAllowed(current, change, now) };
   }
   // Replace, so Back doesn't return to the page before the change.
   redirect(staffBookingPath(reference), RedirectType.replace);
