@@ -1,10 +1,13 @@
 import { vi } from "vitest";
-import { SESSION_COOKIE } from "@/lib/auth/session";
+import { SESSION_COOKIE, type AuthConfig } from "@/lib/auth/session";
 
 /** A valid test `SESSION_SECRET` (32+ characters). */
 export const SECRET = "test-secret-that-is-long-enough-123";
 
-export const PASSWORD = "open sesame";
+export const PASSWORD = "correct horse battery";
+
+/** The auth config `stubAuthEnv()` sets up. */
+export const AUTH_CONFIG: AuthConfig = { password: PASSWORD, secret: SECRET };
 
 /** Sets the staff auth env vars for one test file; undo with `vi.unstubAllEnvs()`. */
 export function stubAuthEnv(): void {

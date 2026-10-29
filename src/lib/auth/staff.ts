@@ -28,7 +28,7 @@ export async function requireStaff(): Promise<void> {
   const state = await sessionState();
   if (state === "misconfigured") {
     throw new Error(
-      "Staff auth is not configured: set STAFF_PASSWORD and a SESSION_SECRET of at least 32 characters.",
+      "Staff auth is not configured: set a STAFF_PASSWORD of at least 12 characters and a SESSION_SECRET of at least 32.",
     );
   }
   if (state === "signed-out") redirect(ROUTES.login);
@@ -43,7 +43,5 @@ async function sessionState(): Promise<SessionState> {
   // Checking expiry reads the clock, which Cache Components only allows
   // once the render is tied to a real request.
   await connection();
-  return verifySession(token, config.secret, new Date())
-    ? "signed-in"
-    : "signed-out";
+  return verifySession(token, config, new Date()) ? "signed-in" : "signed-out";
 }

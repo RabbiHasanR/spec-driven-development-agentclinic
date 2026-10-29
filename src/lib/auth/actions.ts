@@ -41,7 +41,7 @@ export async function signIn(
   }
 
   const expiresAt = new Date(Date.now() + SESSION_MAX_AGE_SECONDS * 1000);
-  (await cookies()).set(SESSION_COOKIE, signSession(expiresAt, config.secret), {
+  (await cookies()).set(SESSION_COOKIE, signSession(expiresAt, config), {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",

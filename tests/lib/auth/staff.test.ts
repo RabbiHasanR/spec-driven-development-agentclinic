@@ -1,9 +1,13 @@
 // @vitest-environment node
 import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
-import { SESSION_COOKIE, signSession } from "@/lib/auth/session";
+import {
+  SESSION_COOKIE,
+  signSession,
+  type AuthConfig,
+} from "@/lib/auth/session";
 import {
   fakeCookieStore,
-  SECRET,
+  AUTH_CONFIG,
   stubAuthEnv,
   type FakeCookieStore,
 } from "../../helpers/auth";
@@ -24,10 +28,10 @@ const { isStaffSignedIn, requireStaff } = await import("@/lib/auth/staff");
 
 const HOUR = 60 * 60 * 1000;
 
-function signInWith(secret: string, expiresInMs = HOUR) {
+function signInWith(config: AuthConfig, expiresInMs = HOUR) {
   mocks.cookies!.set(
     SESSION_COOKIE,
-    signSession(new Date(Date.now() + expiresInMs), secret),
+    signSession(new Date(Date.now() + expiresInMs), config),
   );
 }
 
@@ -42,7 +46,7 @@ describe("staff session gate", () => {
   });
 
   it("lets a signed-in staff member through", async () => {
-    signInWith(SECRET);
+    signInWith(AUTH_CONFIG);
 
     expect(await isStaffSignedIn()).toBe(true);
     await expect(requireStaff()).resolves.toBeUndefined();
@@ -54,15 +58,25 @@ describe("staff session gate", () => {
   });
 
   it("treats an expired or forged session as signed out", async () => {
-    signInWith(SECRET, -1);
+    signInWith(AUTH_CONFIG, -1);
     await expect(requireStaff()).rejects.toThrow("NEXT_REDIRECT /login");
 
-    signInWith("someone-elses-secret-that-is-32-chars");
+    signInWith({
+      ...AUTH_CONFIG,
+      secret: "someone-elses-secret-that-is-32-chars",
+    });
+    await expect(requireStaff()).rejects.toThrow("NEXT_REDIRECT /login");
+  });
+
+  it("signs everyone out when the password changes", async () => {
+    signInWith(AUTH_CONFIG);
+    vi.stubEnv("STAFF_PASSWORD", "a brand new staff password");
+
     await expect(requireStaff()).rejects.toThrow("NEXT_REDIRECT /login");
   });
 
   it("fails closed when auth isn't configured", async () => {
-    signInWith(SECRET);
+    signInWith(AUTH_CONFIG);
     vi.stubEnv("STAFF_PASSWORD", "");
     const readCookie = vi.spyOn(mocks.cookies!, "get");
 

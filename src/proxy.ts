@@ -17,7 +17,7 @@ import { ROUTES } from "@/lib/routes";
 export function proxy(request: NextRequest): NextResponse {
   const config = readAuthConfig();
   const token = request.cookies.get(SESSION_COOKIE)?.value;
-  if (!config || verifySession(token, config.secret, new Date())) {
+  if (!config || verifySession(token, config, new Date())) {
     return NextResponse.next();
   }
   const login = new URL(ROUTES.login, request.url);

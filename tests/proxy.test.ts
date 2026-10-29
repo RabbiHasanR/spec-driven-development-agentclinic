@@ -3,7 +3,7 @@ import { NextRequest } from "next/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { SESSION_COOKIE, signSession } from "@/lib/auth/session";
 import { config, proxy } from "@/proxy";
-import { SECRET, stubAuthEnv } from "./helpers/auth";
+import { AUTH_CONFIG, stubAuthEnv } from "./helpers/auth";
 
 const ORIGIN = "http://localhost:3000";
 
@@ -35,13 +35,13 @@ describe("proxy", () => {
   });
 
   it("redirects an expired session", () => {
-    const expired = signSession(new Date(Date.now() - 1000), SECRET);
+    const expired = signSession(new Date(Date.now() - 1000), AUTH_CONFIG);
 
     expect(proxy(request("/dashboard", expired)).status).toBe(307);
   });
 
   it("lets a signed-in staff member through", () => {
-    const valid = signSession(new Date(Date.now() + 60_000), SECRET);
+    const valid = signSession(new Date(Date.now() + 60_000), AUTH_CONFIG);
     const response = proxy(request("/dashboard", valid));
 
     expect(response.headers.get("location")).toBeNull();

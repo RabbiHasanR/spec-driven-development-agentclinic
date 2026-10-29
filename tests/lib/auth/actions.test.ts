@@ -14,7 +14,7 @@ import {
 import {
   fakeCookieStore,
   PASSWORD,
-  SECRET,
+  AUTH_CONFIG,
   stubAuthEnv,
   type FakeCookieStore,
 } from "../../helpers/auth";
@@ -59,9 +59,9 @@ describe("signIn", () => {
     }).catch((e: Error) => e);
 
     expect(String(error)).toContain("NEXT_REDIRECT replace /dashboard/catalog");
-    expect(verifySession(mocks.cookies!.session(), SECRET, new Date())).toBe(
-      true,
-    );
+    expect(
+      verifySession(mocks.cookies!.session(), AUTH_CONFIG, new Date()),
+    ).toBe(true);
     expect(mocks.cookies!.options.get(SESSION_COOKIE)).toMatchObject({
       httpOnly: true,
       sameSite: "lax",
@@ -99,7 +99,7 @@ describe("signIn", () => {
 describe("signOut", () => {
   it("clears the session cookie and goes home", async () => {
     mocks.cookies = fakeCookieStore();
-    mocks.cookies.set(SESSION_COOKIE, signSession(new Date(), SECRET));
+    mocks.cookies.set(SESSION_COOKIE, signSession(new Date(), AUTH_CONFIG));
 
     const error = await signOut().catch((e: Error) => e);
 
