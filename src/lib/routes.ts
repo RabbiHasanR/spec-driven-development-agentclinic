@@ -3,6 +3,7 @@ export const ROUTES = {
   home: "/",
   ailments: "/ailments",
   dashboard: "/dashboard",
+  login: "/login",
 } as const;
 
 // Path prefixes with no page of their own; only the builders below use them.

@@ -5,9 +5,13 @@ import type { Db } from "@/lib/db/connection";
 import { getTherapyBySlug } from "@/lib/db/therapies";
 import { createTestDb } from "../../../helpers/db";
 
-const mocks = vi.hoisted(() => ({ db: undefined as Db | undefined }));
+const mocks = vi.hoisted(() => ({
+  db: undefined as Db | undefined,
+  requireStaff: vi.fn(async () => {}),
+}));
 
 vi.mock("@/lib/db/client", () => ({ getDb: () => mocks.db }));
+vi.mock("@/lib/auth/staff", () => ({ requireStaff: mocks.requireStaff }));
 vi.mock("next/server", () => ({ connection: async () => {} }));
 
 const { default: Page, metadata } =
@@ -39,6 +43,12 @@ describe("/dashboard route", () => {
 
   it("keeps the page, which lists contact details, out of search engines", () => {
     expect(metadata).toEqual({ title: "Dashboard", robots: { index: false } });
+  });
+
+  it("requires a staff session before reading any bookings", async () => {
+    mocks.requireStaff.mockRejectedValueOnce(new Error("NEXT_REDIRECT /login"));
+
+    await expect(Page()).rejects.toThrow("NEXT_REDIRECT /login");
   });
 
   it("renders the schedule split around now, with its overview", async () => {
