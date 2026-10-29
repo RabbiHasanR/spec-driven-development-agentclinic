@@ -1,23 +1,34 @@
 // @vitest-environment node
-import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import { createAppointment } from "@/lib/db/appointments";
-import type { Db } from "@/lib/db/connection";
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vitest";
+import {
+  createAppointment,
+  getAppointmentByReference,
+} from "@/lib/db/appointments";
 import { getTherapyBySlug } from "@/lib/db/therapies";
-import { createTestDb } from "../../../../../helpers/db";
+import { signInStaff, signOutStaff } from "@tests/helpers/auth";
+import { createTestDb, testDb } from "@tests/helpers/db";
 
-const mocks = vi.hoisted(() => ({
-  db: undefined as Db | undefined,
-  requireStaff: vi.fn(async () => {}),
-}));
-
-vi.mock("@/lib/db/client", () => ({ getDb: () => mocks.db }));
-vi.mock("@/lib/auth/staff", () => ({ requireStaff: mocks.requireStaff }));
-vi.mock("next/server", () => ({ connection: async () => {} }));
-vi.mock("next/navigation", () => ({
-  notFound: () => {
-    throw new Error("NEXT_NOT_FOUND");
-  },
-}));
+vi.mock("@/lib/db/client", () =>
+  import("@tests/helpers/db").then((m) => m.client),
+);
+vi.mock("next/headers", () =>
+  import("@tests/helpers/auth").then((m) => m.headers),
+);
+vi.mock("next/server", () =>
+  import("@tests/helpers/next").then((m) => m.server),
+);
+vi.mock("next/navigation", () =>
+  import("@tests/helpers/next").then((m) => m.navigation),
+);
+vi.mock("next/cache", () => ({ refresh: () => {} }));
 
 const { default: Page, generateMetadata } =
   await import("@/app/(staff)/dashboard/bookings/[reference]/page");
@@ -35,9 +46,9 @@ describe("/dashboard/bookings/[reference] route", () => {
       toFake: ["Date"],
       now: new Date("2026-10-28T12:30:00Z"),
     });
-    mocks.db = createTestDb();
-    const therapy = getTherapyBySlug(mocks.db, "grounding-session")!;
-    const result = createAppointment(mocks.db, therapy, {
+    testDb.current = createTestDb();
+    const therapy = getTherapyBySlug(testDb.current, "grounding-session")!;
+    const result = createAppointment(testDb.current, therapy, {
       agentName: "Ada",
       agentEmail: "ada@example.com",
       startsAt: "2026-11-02T09:00:00.000Z",
@@ -46,12 +57,15 @@ describe("/dashboard/bookings/[reference] route", () => {
     reference = result.appointment.reference;
   });
 
-  beforeEach(() => {
-    mocks.requireStaff.mockClear();
+  beforeEach(signInStaff);
+
+  afterAll(() => {
+    vi.useRealTimers();
+    vi.unstubAllEnvs();
   });
 
-  it("requires a staff session before loading the booking", async () => {
-    mocks.requireStaff.mockRejectedValueOnce(new Error("NEXT_REDIRECT /login"));
+  it("sends a visitor without a staff session to the login page", async () => {
+    signOutStaff();
 
     await expect(Page(propsFor(reference))).rejects.toThrow(
       "NEXT_REDIRECT /login",
@@ -65,14 +79,21 @@ describe("/dashboard/bookings/[reference] route", () => {
     });
   });
 
-  it("renders the booking with the changes allowed now", async () => {
+  it("offers the changes allowed now, bound to this booking", async () => {
     const element = await Page(propsFor(reference));
 
-    expect(mocks.requireStaff).toHaveBeenCalled();
     expect(element.props.appointment).toMatchObject({ reference });
     // Upcoming, so it can only be cancelled.
     expect(element.props.allowed).toEqual(["cancelled"]);
-    expect(element.props.action).toBeTypeOf("function");
+
+    const formData = new FormData();
+    formData.set("status", "cancelled");
+    await expect(element.props.action({}, formData)).rejects.toThrow(
+      `NEXT_REDIRECT replace /dashboard/bookings/${reference}`,
+    );
+    expect(getAppointmentByReference(testDb.current!, reference)?.status).toBe(
+      "cancelled",
+    );
   });
 
   it("calls notFound() for an unknown reference", async () => {

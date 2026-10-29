@@ -30,14 +30,14 @@ export async function signIn(
   formData: FormData,
 ): Promise<SignInFormState> {
   const config = readAuthConfig();
-  if (!config) return { message: AUTH_UNAVAILABLE_MESSAGE };
+  if (!config) return { errors: {}, message: AUTH_UNAVAILABLE_MESSAGE };
 
   const password = formData.get("password");
   if (
     typeof password !== "string" ||
     !passwordMatches(password, config.password)
   ) {
-    return { error: INCORRECT_PASSWORD_MESSAGE };
+    return { errors: { password: INCORRECT_PASSWORD_MESSAGE } };
   }
 
   const expiresAt = new Date(Date.now() + SESSION_MAX_AGE_SECONDS * 1000);

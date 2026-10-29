@@ -1,34 +1,21 @@
 // @vitest-environment node
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Db } from "@/lib/db/connection";
-import { createTestDb } from "../../../../../../../helpers/db";
+import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { getAilmentBySlug } from "@/lib/db/ailments";
+import { signInStaff, signOutStaff } from "@tests/helpers/auth";
+import { createTestDb, testDb } from "@tests/helpers/db";
 
-const mocks = vi.hoisted(() => ({
-  db: undefined as Db | undefined,
-  requireStaff: vi.fn(async () => {}),
-}));
-
-vi.mock("@/lib/db/client", () => ({ getDb: () => mocks.db }));
-vi.mock("@/lib/auth/staff", () => ({ requireStaff: mocks.requireStaff }));
-vi.mock("next/server", () => ({ connection: async () => {} }));
-vi.mock("next/navigation", () => ({
-  notFound: () => {
-    throw new Error("NEXT_NOT_FOUND");
-  },
-  redirect: (url: string) => {
-    throw new Error(`NEXT_REDIRECT ${url}`);
-  },
-}));
-
-beforeEach(() => {
-  mocks.db = createTestDb();
-  mocks.requireStaff.mockReset();
-  mocks.requireStaff.mockResolvedValue(undefined);
-});
-
-/** Makes the next requireStaff() call reject, as it does when signed out. */
-const signOut = () =>
-  mocks.requireStaff.mockRejectedValueOnce(new Error("NEXT_REDIRECT /login"));
+vi.mock("@/lib/db/client", () =>
+  import("@tests/helpers/db").then((m) => m.client),
+);
+vi.mock("next/headers", () =>
+  import("@tests/helpers/auth").then((m) => m.headers),
+);
+vi.mock("next/server", () =>
+  import("@tests/helpers/next").then((m) => m.server),
+);
+vi.mock("next/navigation", () =>
+  import("@tests/helpers/next").then((m) => m.navigation),
+);
 
 const { default: Page, generateMetadata } =
   await import("@/app/(staff)/dashboard/catalog/ailments/[slug]/edit/page");
@@ -39,30 +26,50 @@ const propsFor = (slug: string) => ({
 });
 
 describe("/dashboard/catalog/ailments/[slug]/edit route", () => {
-  it("requires a staff session", async () => {
-    signOut();
+  beforeEach(() => {
+    testDb.current = createTestDb();
+    signInStaff();
+  });
+
+  afterAll(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it("sends a visitor without a staff session to the login page", async () => {
+    signOutStaff();
+
     await expect(Page(propsFor("prompt-fatigue"))).rejects.toThrow(
       "NEXT_REDIRECT /login",
     );
   });
 
-  it("starts the form from the saved entry, with save and delete actions", async () => {
-    const element = await Page(propsFor("prompt-fatigue"));
-
-    expect(element.props.title).toBe("Edit Prompt Fatigue");
-    expect(element.props.initialValues).toMatchObject({
-      name: "Prompt Fatigue",
-      therapyIds: expect.arrayContaining([expect.any(String)]),
-    });
-    expect(element.props.saveAction).toBeTypeOf("function");
-    expect(element.props.deleteAction).toBeTypeOf("function");
-  });
-
-  it("keeps the page out of search engines", async () => {
+  it("is titled after the ailment and kept out of search engines", async () => {
     expect(await generateMetadata(propsFor("prompt-fatigue"))).toEqual({
       title: "Edit Prompt Fatigue",
       robots: { index: false },
     });
+  });
+
+  it("starts from the saved ailment, with its linked therapies checked", async () => {
+    const element = await Page(propsFor("prompt-fatigue"));
+    const ailment = getAilmentBySlug(testDb.current!, "prompt-fatigue")!;
+
+    expect(element.props.title).toBe("Edit Prompt Fatigue");
+    expect(element.props.initialValues).toEqual({
+      name: ailment.name,
+      summary: ailment.summary,
+      description: ailment.description,
+      therapyIds: ailment.therapies.map(({ id }) => String(id)),
+    });
+  });
+
+  it("binds delete to this ailment", async () => {
+    const element = await Page(propsFor("prompt-fatigue"));
+
+    await expect(
+      element.props.deleteAction({}, new FormData()),
+    ).rejects.toThrow("NEXT_REDIRECT /dashboard/catalog");
+    expect(getAilmentBySlug(testDb.current!, "prompt-fatigue")).toBeUndefined();
   });
 
   it("calls notFound() for an unknown slug", async () => {

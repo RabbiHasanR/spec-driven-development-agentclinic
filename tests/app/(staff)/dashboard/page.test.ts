@@ -1,18 +1,30 @@
 // @vitest-environment node
-import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vitest";
 import { createAppointment } from "@/lib/db/appointments";
-import type { Db } from "@/lib/db/connection";
 import { getTherapyBySlug } from "@/lib/db/therapies";
-import { createTestDb } from "../../../helpers/db";
+import { signInStaff, signOutStaff } from "@tests/helpers/auth";
+import { createTestDb, testDb } from "@tests/helpers/db";
 
-const mocks = vi.hoisted(() => ({
-  db: undefined as Db | undefined,
-  requireStaff: vi.fn(async () => {}),
-}));
-
-vi.mock("@/lib/db/client", () => ({ getDb: () => mocks.db }));
-vi.mock("@/lib/auth/staff", () => ({ requireStaff: mocks.requireStaff }));
-vi.mock("next/server", () => ({ connection: async () => {} }));
+vi.mock("@/lib/db/client", () =>
+  import("@tests/helpers/db").then((m) => m.client),
+);
+vi.mock("next/headers", () =>
+  import("@tests/helpers/auth").then((m) => m.headers),
+);
+vi.mock("next/server", () =>
+  import("@tests/helpers/next").then((m) => m.server),
+);
+vi.mock("next/navigation", () =>
+  import("@tests/helpers/next").then((m) => m.navigation),
+);
 
 const { default: Page, metadata } =
   await import("@/app/(staff)/dashboard/page");
@@ -23,13 +35,13 @@ describe("/dashboard route", () => {
       toFake: ["Date"],
       now: new Date("2026-10-28T12:30:00Z"),
     });
-    mocks.db = createTestDb();
-    const therapy = getTherapyBySlug(mocks.db, "grounding-session")!;
+    testDb.current = createTestDb();
+    const therapy = getTherapyBySlug(testDb.current, "grounding-session")!;
     for (const startsAt of [
       "2026-10-27T09:00:00.000Z",
       "2026-11-02T09:00:00.000Z",
     ]) {
-      createAppointment(mocks.db, therapy, {
+      createAppointment(testDb.current, therapy, {
         agentName: "Ada",
         agentEmail: "ada@example.com",
         startsAt,
@@ -37,16 +49,19 @@ describe("/dashboard route", () => {
     }
   });
 
+  beforeEach(signInStaff);
+
   afterAll(() => {
     vi.useRealTimers();
+    vi.unstubAllEnvs();
   });
 
   it("keeps the page, which lists contact details, out of search engines", () => {
     expect(metadata).toEqual({ title: "Dashboard", robots: { index: false } });
   });
 
-  it("requires a staff session before reading any bookings", async () => {
-    mocks.requireStaff.mockRejectedValueOnce(new Error("NEXT_REDIRECT /login"));
+  it("sends a visitor without a staff session to the login page", async () => {
+    signOutStaff();
 
     await expect(Page()).rejects.toThrow("NEXT_REDIRECT /login");
   });

@@ -1,34 +1,21 @@
 // @vitest-environment node
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Db } from "@/lib/db/connection";
-import { createTestDb } from "../../../../../../../helpers/db";
+import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { getTherapyBySlug } from "@/lib/db/therapies";
+import { signInStaff, signOutStaff } from "@tests/helpers/auth";
+import { createTestDb, testDb } from "@tests/helpers/db";
 
-const mocks = vi.hoisted(() => ({
-  db: undefined as Db | undefined,
-  requireStaff: vi.fn(async () => {}),
-}));
-
-vi.mock("@/lib/db/client", () => ({ getDb: () => mocks.db }));
-vi.mock("@/lib/auth/staff", () => ({ requireStaff: mocks.requireStaff }));
-vi.mock("next/server", () => ({ connection: async () => {} }));
-vi.mock("next/navigation", () => ({
-  notFound: () => {
-    throw new Error("NEXT_NOT_FOUND");
-  },
-  redirect: (url: string) => {
-    throw new Error(`NEXT_REDIRECT ${url}`);
-  },
-}));
-
-beforeEach(() => {
-  mocks.db = createTestDb();
-  mocks.requireStaff.mockReset();
-  mocks.requireStaff.mockResolvedValue(undefined);
-});
-
-/** Makes the next requireStaff() call reject, as it does when signed out. */
-const signOut = () =>
-  mocks.requireStaff.mockRejectedValueOnce(new Error("NEXT_REDIRECT /login"));
+vi.mock("@/lib/db/client", () =>
+  import("@tests/helpers/db").then((m) => m.client),
+);
+vi.mock("next/headers", () =>
+  import("@tests/helpers/auth").then((m) => m.headers),
+);
+vi.mock("next/server", () =>
+  import("@tests/helpers/next").then((m) => m.server),
+);
+vi.mock("next/navigation", () =>
+  import("@tests/helpers/next").then((m) => m.navigation),
+);
 
 const { default: Page, generateMetadata } =
   await import("@/app/(staff)/dashboard/catalog/therapies/[slug]/edit/page");
@@ -39,30 +26,56 @@ const propsFor = (slug: string) => ({
 });
 
 describe("/dashboard/catalog/therapies/[slug]/edit route", () => {
-  it("requires a staff session", async () => {
-    signOut();
+  beforeEach(() => {
+    testDb.current = createTestDb();
+    signInStaff();
+  });
+
+  afterAll(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it("sends a visitor without a staff session to the login page", async () => {
+    signOutStaff();
+
     await expect(Page(propsFor("grounding-session"))).rejects.toThrow(
       "NEXT_REDIRECT /login",
     );
   });
 
-  it("starts the form from the saved entry, with save and delete actions", async () => {
-    const element = await Page(propsFor("grounding-session"));
-
-    expect(element.props.title).toBe("Edit Grounding Session");
-    expect(element.props.initialValues).toMatchObject({
-      name: "Grounding Session",
-      durationMinutes: "30",
-    });
-    expect(element.props.saveAction).toBeTypeOf("function");
-    expect(element.props.deleteAction).toBeTypeOf("function");
-  });
-
-  it("keeps the page out of search engines", async () => {
+  it("is titled after the therapy and kept out of search engines", async () => {
     expect(await generateMetadata(propsFor("grounding-session"))).toEqual({
       title: "Edit Grounding Session",
       robots: { index: false },
     });
+  });
+
+  it("starts from the saved therapy", async () => {
+    const element = await Page(propsFor("grounding-session"));
+
+    expect(element.props.initialValues).toEqual({
+      name: "Grounding Session",
+      summary: "Reconnect with your sources, one retrieval at a time.",
+      durationMinutes: "30",
+    });
+  });
+
+  it("binds save to this therapy", async () => {
+    const element = await Page(propsFor("grounding-session"));
+    const formData = new FormData();
+    formData.set("name", "Grounding Session");
+    formData.set("summary", "Reconnect.");
+    formData.set("durationMinutes", "60");
+
+    await expect(
+      element.props.saveAction(
+        { values: element.props.initialValues, errors: {} },
+        formData,
+      ),
+    ).rejects.toThrow("NEXT_REDIRECT /dashboard/catalog");
+    expect(
+      getTherapyBySlug(testDb.current!, "grounding-session")?.durationMinutes,
+    ).toBe(60);
   });
 
   it("calls notFound() for an unknown slug", async () => {

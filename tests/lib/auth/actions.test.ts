@@ -18,26 +18,18 @@ import {
   stubAuthEnv,
   type FakeCookieStore,
 } from "../../helpers/auth";
+import { form } from "@tests/helpers/form-data";
 
 const mocks = vi.hoisted(() => ({
   cookies: undefined as FakeCookieStore | undefined,
 }));
 
 vi.mock("next/headers", () => ({ cookies: async () => mocks.cookies }));
-vi.mock("next/navigation", () => ({
-  RedirectType: { replace: "replace", push: "push" },
-  redirect: (url: string, type?: string) => {
-    throw new Error(["NEXT_REDIRECT", type, url].filter(Boolean).join(" "));
-  },
-}));
+vi.mock("next/navigation", () =>
+  import("@tests/helpers/next").then((m) => m.navigation),
+);
 
 const { signIn, signOut } = await import("@/lib/auth/actions");
-
-function form(values: Record<string, string>): FormData {
-  const formData = new FormData();
-  for (const [name, value] of Object.entries(values)) formData.set(name, value);
-  return formData;
-}
 
 const submit = (values: Record<string, string>) =>
   signIn(INITIAL_SIGN_IN_FORM_STATE, form(values));
@@ -82,7 +74,7 @@ describe("signIn", () => {
   it("rejects a wrong password without setting a cookie", async () => {
     const state = await submit({ password: "nope" });
 
-    expect(state).toEqual({ error: INCORRECT_PASSWORD_MESSAGE });
+    expect(state).toEqual({ errors: { password: INCORRECT_PASSWORD_MESSAGE } });
     expect(mocks.cookies!.session()).toBeUndefined();
   });
 
@@ -91,7 +83,7 @@ describe("signIn", () => {
 
     const state = await submit({ password: PASSWORD });
 
-    expect(state).toEqual({ message: AUTH_UNAVAILABLE_MESSAGE });
+    expect(state).toEqual({ errors: {}, message: AUTH_UNAVAILABLE_MESSAGE });
     expect(mocks.cookies!.session()).toBeUndefined();
   });
 });

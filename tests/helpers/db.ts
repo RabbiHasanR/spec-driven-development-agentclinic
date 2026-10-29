@@ -13,3 +13,16 @@ export function createTestDb({ seed = true }: { seed?: boolean } = {}): Db {
   if (seed) seedDb(db);
   return db;
 }
+
+/** The database `getDb()` returns in tests that mock it with {@link client}. */
+export const testDb: { current?: Db } = {};
+
+/** Stand-in for `@/lib/db/client`. Mock with:
+ *  vi.mock("@/lib/db/client", () => import("@tests/helpers/db").then((m) => m.client));
+ */
+export const client = {
+  getDb: (): Db => {
+    if (!testDb.current) throw new Error("Set testDb.current first.");
+    return testDb.current;
+  },
+};

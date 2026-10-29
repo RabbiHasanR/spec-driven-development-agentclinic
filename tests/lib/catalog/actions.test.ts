@@ -4,12 +4,14 @@ import {
   EMPTY_AILMENT_VALUES,
   EMPTY_THERAPY_VALUES,
 } from "@/lib/catalog/form-state";
+import { slugify } from "@/lib/catalog/slug";
 import { NAME_TAKEN_MESSAGE } from "@/lib/catalog/validate";
 import { createAilment, getAilmentBySlug } from "@/lib/db/ailments";
 import { createAppointment } from "@/lib/db/appointments";
 import type { Db } from "@/lib/db/connection";
 import { getTherapyBySlug, listTherapies } from "@/lib/db/therapies";
 import { createTestDb } from "../../helpers/db";
+import { form } from "@tests/helpers/form-data";
 
 const mocks = vi.hoisted(() => ({
   db: undefined as Db | undefined,
@@ -18,21 +20,11 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock("@/lib/db/client", () => ({ getDb: () => mocks.db }));
 vi.mock("@/lib/auth/staff", () => ({ requireStaff: mocks.requireStaff }));
-vi.mock("next/navigation", () => ({
-  redirect: (url: string) => {
-    throw new Error(`NEXT_REDIRECT ${url}`);
-  },
-}));
+vi.mock("next/navigation", () =>
+  import("@tests/helpers/next").then((m) => m.navigation),
+);
 
 const actions = await import("@/lib/catalog/actions");
-
-function form(values: Record<string, string | string[]>): FormData {
-  const formData = new FormData();
-  for (const [name, value] of Object.entries(values)) {
-    for (const v of [value].flat()) formData.append(name, v);
-  }
-  return formData;
-}
 
 describe("catalog actions", () => {
   let therapyIds: string[];
@@ -247,7 +239,7 @@ describe("catalog actions", () => {
         createAilment(
           db(),
           { name, summary: "s", description: "d", therapyIds: [therapy.id] },
-          name.toLowerCase().replace(" ", "-"),
+          slugify(name),
         );
       }
 

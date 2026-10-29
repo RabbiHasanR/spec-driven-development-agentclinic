@@ -1,8 +1,11 @@
 import "server-only";
 
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { connection } from "next/server";
+import { cache } from "react";
+import { getDb } from "@/lib/db/client";
+import type { Db } from "@/lib/db/connection";
 import { ROUTES } from "@/lib/routes";
 import { readAuthConfig, SESSION_COOKIE, verifySession } from "./session";
 
@@ -32,6 +35,24 @@ export async function requireStaff(): Promise<void> {
     );
   }
   if (state === "signed-out") redirect(ROUTES.login);
+}
+
+/**
+ * Makes the loader for a staff detail page: checks the session, reads per
+ * request, and shows the not-found page when nothing matches. Cached per
+ * request, so `generateMetadata` and the page share one check and query.
+ *
+ * @example const loadTherapy = staffLoader(getTherapyBySlug);
+ * @param find - Looks the entry up by its URL key (slug or reference).
+ */
+export function staffLoader<T>(
+  find: (db: Db, key: string) => T | undefined,
+): (key: string) => Promise<T> {
+  return cache(async (key: string) => {
+    await requireStaff();
+    await connection();
+    return find(getDb(), key) ?? notFound();
+  });
 }
 
 async function sessionState(): Promise<SessionState> {

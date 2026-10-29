@@ -68,7 +68,7 @@ describe("Project conventions", () => {
     // Reading the session (cookies) makes a page request-time just like
     // connection() does.
     const pagesWithoutLoading = sourcesMatching(
-      /\b(?:connection|requireStaff|isStaffSignedIn)\(\)/,
+      /\b(?:connection|requireStaff|isStaffSignedIn)\(\)|\bstaffLoader\(/,
     )
       .filter((file) => file.startsWith("app/") && file.endsWith("/page.tsx"))
       .filter(

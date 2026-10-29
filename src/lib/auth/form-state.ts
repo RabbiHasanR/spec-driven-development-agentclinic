@@ -6,13 +6,13 @@
  * never echoed back to the form.
  */
 export type SignInFormState = {
-  /** Shown next to the password field. */
-  error?: string;
+  /** Shown next to their fields; only the password has one. */
+  errors: { password?: string };
   /** A problem with sign-in as a whole (e.g. auth isn't configured). */
   message?: string;
 };
 
-export const INITIAL_SIGN_IN_FORM_STATE: SignInFormState = {};
+export const INITIAL_SIGN_IN_FORM_STATE: SignInFormState = { errors: {} };
 
 export const INCORRECT_PASSWORD_MESSAGE = "Incorrect password";
 

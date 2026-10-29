@@ -21,6 +21,7 @@ import {
 } from "@/lib/db/appointments";
 import { getTherapyBySlug } from "@/lib/db/therapies";
 import { createTestDb } from "../../helpers/db";
+import { form } from "@tests/helpers/form-data";
 
 const mocks = vi.hoisted(() => ({
   db: undefined as Db | undefined,
@@ -31,12 +32,9 @@ const mocks = vi.hoisted(() => ({
 vi.mock("@/lib/db/client", () => ({ getDb: () => mocks.db }));
 vi.mock("@/lib/auth/staff", () => ({ requireStaff: mocks.requireStaff }));
 vi.mock("next/cache", () => ({ refresh: mocks.refresh }));
-vi.mock("next/navigation", () => ({
-  RedirectType: { replace: "replace", push: "push" },
-  redirect: (url: string, type?: string) => {
-    throw new Error(`NEXT_REDIRECT ${type} ${url}`);
-  },
-}));
+vi.mock("next/navigation", () =>
+  import("@tests/helpers/next").then((m) => m.navigation),
+);
 
 const { bookAppointment, changeBookingStatus } =
   await import("@/lib/booking/actions");
@@ -49,12 +47,6 @@ const VALUES = {
   agentEmail: "ada@example.com",
   startsAt: SLOT,
 };
-
-function form(values: Record<string, string>): FormData {
-  const formData = new FormData();
-  for (const [name, value] of Object.entries(values)) formData.set(name, value);
-  return formData;
-}
 
 const submit = (values: Record<string, string>, slug = "grounding-session") =>
   bookAppointment(slug, INITIAL_BOOKING_FORM_STATE, form(values));

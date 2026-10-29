@@ -31,7 +31,9 @@ describe("LoginForm", () => {
   });
 
   it("shows a wrong password next to the field and focuses it", async () => {
-    const action = vi.fn(async () => ({ error: INCORRECT_PASSWORD_MESSAGE }));
+    const action = vi.fn(async () => ({
+      errors: { password: INCORRECT_PASSWORD_MESSAGE },
+    }));
     render(<LoginForm action={action} />);
 
     submit();
@@ -43,7 +45,10 @@ describe("LoginForm", () => {
   });
 
   it("shows a form-wide message as an alert", async () => {
-    const action = vi.fn(async () => ({ message: "Not set up yet." }));
+    const action = vi.fn(async () => ({
+      errors: {},
+      message: "Not set up yet.",
+    }));
     render(<LoginForm action={action} />);
 
     submit();
