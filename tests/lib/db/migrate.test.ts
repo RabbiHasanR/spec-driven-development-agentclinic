@@ -106,4 +106,21 @@ describe("migrateDb", () => {
     // Filled from its therapy's length at upgrade time.
     expect(upgraded?.durationMinutes).toBe(upgraded?.therapy.durationMinutes);
   });
+
+  it("renames names that differ only in case, instead of failing the upgrade", () => {
+    const db = createDb(IN_MEMORY);
+    migrateDb(db, migrationsUpTo(dir, "0004_appointment_status"));
+    const insert = db.$client.prepare(
+      "INSERT INTO ailments (slug, name, summary, description) VALUES (?, ?, 's', 'd')",
+    );
+    insert.run("foo", "Foo");
+    insert.run("foo-2", "foo");
+
+    migrateDb(db);
+
+    const names = db.$client
+      .prepare("SELECT id, name FROM ailments ORDER BY id")
+      .all() as { id: number; name: string }[];
+    expect(names.map((r) => r.name)).toEqual(["Foo", `foo (${names[1].id})`]);
+  });
 });

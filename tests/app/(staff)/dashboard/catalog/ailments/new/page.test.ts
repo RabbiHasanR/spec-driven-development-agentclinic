@@ -30,10 +30,17 @@ beforeEach(() => {
 const signOut = () =>
   mocks.requireStaff.mockRejectedValueOnce(new Error("NEXT_REDIRECT /login"));
 
-const { default: Page } =
+const { default: Page, metadata } =
   await import("@/app/(staff)/dashboard/catalog/ailments/new/page");
 
 describe("/dashboard/catalog/ailments/new route", () => {
+  it("is titled and kept out of search engines", () => {
+    expect(metadata).toEqual({
+      title: "New ailment",
+      robots: { index: false },
+    });
+  });
+
   it("requires a staff session", async () => {
     signOut();
     await expect(Page()).rejects.toThrow("NEXT_REDIRECT /login");

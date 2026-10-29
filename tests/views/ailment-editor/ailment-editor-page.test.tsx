@@ -47,4 +47,20 @@ describe("Ailment editor page", () => {
     ).toBeInTheDocument();
     expect(screen.getByText("Delete ailment…")).toBeInTheDocument();
   });
+
+  it("points to adding a therapy first when there are none", () => {
+    render(
+      <AilmentEditorPage
+        title="New ailment"
+        therapies={[]}
+        initialValues={EMPTY_AILMENT_VALUES}
+        saveAction={vi.fn()}
+      />,
+    );
+
+    expect(screen.queryByRole("button")).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: /Add a therapy first/ }),
+    ).toHaveAttribute("href", "/dashboard/catalog/therapies/new");
+  });
 });
