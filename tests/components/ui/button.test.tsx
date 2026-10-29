@@ -23,4 +23,12 @@ describe("Button", () => {
     expect(button).toHaveAttribute("type", "submit");
     expect(button).toHaveClass("w-full");
   });
+
+  it("styles an action that can't be undone differently", () => {
+    render(<Button variant="danger">Delete</Button>);
+
+    expect(screen.getByRole("button", { name: "Delete" })).toHaveClass(
+      "bg-danger",
+    );
+  });
 });

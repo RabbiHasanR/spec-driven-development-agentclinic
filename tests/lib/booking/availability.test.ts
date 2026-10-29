@@ -2,7 +2,10 @@
 import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it } from "vitest";
 import { listOpenSlots } from "@/lib/booking/availability";
-import { createAppointment } from "@/lib/db/appointments";
+import {
+  createAppointment,
+  updateAppointmentStatus,
+} from "@/lib/db/appointments";
 import type { Db } from "@/lib/db/connection";
 import { therapies } from "@/lib/db/schema";
 import { getTherapyBySlug } from "@/lib/db/therapies";
@@ -53,5 +56,19 @@ describe("listOpenSlots", () => {
     expect(open).not.toContain("2026-11-02T09:00:00.000Z");
     expect(open).not.toContain("2026-11-02T11:00:00.000Z");
     expect(open).toContain("2026-11-02T13:00:00.000Z");
+  });
+
+  it("offers a cancelled booking's slot again", () => {
+    const created = createAppointment(db, grounding, input());
+    if (!created.ok) throw new Error("expected a booking");
+    updateAppointmentStatus(
+      db,
+      created.appointment.reference,
+      "booked",
+      "cancelled",
+      NOW,
+    );
+
+    expect(listOpenSlots(db, grounding, NOW)).toContain(SLOT);
   });
 });

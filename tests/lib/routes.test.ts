@@ -5,6 +5,7 @@ import {
   bookTherapyPath,
   isActivePath,
   ROUTES,
+  staffBookingPath,
 } from "@/lib/routes";
 
 describe("routes", () => {
@@ -20,6 +21,10 @@ describe("routes", () => {
 
   it("builds a booking's confirmation path", () => {
     expect(bookingPath("AC-7F3K9Q")).toBe("/bookings/AC-7F3K9Q");
+  });
+
+  it("builds a booking's staff path under the dashboard", () => {
+    expect(staffBookingPath("AC-7F3K9Q")).toBe("/dashboard/bookings/AC-7F3K9Q");
   });
 
   it.each([

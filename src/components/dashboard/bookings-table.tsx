@@ -1,15 +1,31 @@
+import Link from "next/link";
+import type { ReactNode } from "react";
 import { formatSlot } from "@/lib/booking/format";
 import type { AppointmentWithTherapy } from "@/lib/db/types";
+import { staffBookingPath } from "@/lib/routes";
+import { StatusBadge } from "./status-badge";
 
 const COLUMNS: {
   label: string;
-  value: (appointment: AppointmentWithTherapy) => string;
+  value: (appointment: AppointmentWithTherapy) => ReactNode;
 }[] = [
   { label: "When", value: (a) => formatSlot(a.startsAt) },
   { label: "Therapy", value: (a) => a.therapy.name },
   { label: "Agent", value: (a) => a.agentName },
   { label: "Email", value: (a) => a.agentEmail },
-  { label: "Reference", value: (a) => a.reference },
+  { label: "Status", value: (a) => <StatusBadge status={a.status} /> },
+  {
+    label: "Reference",
+    value: (a) => (
+      <Link
+        href={staffBookingPath(a.reference)}
+        aria-label={`Manage booking ${a.reference}`}
+        className="inline-flex min-h-11 items-center rounded font-medium text-accent focus-ring hover:underline"
+      >
+        {a.reference}
+      </Link>
+    ),
+  },
 ];
 
 /**

@@ -10,6 +10,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { getAilmentBySlug } from "@/lib/db/ailments";
+import { getAppointmentByReference } from "@/lib/db/appointments";
 import { createDb, IN_MEMORY } from "@/lib/db/connection";
 import { MIGRATIONS_DIR, migrateDb } from "@/lib/db/migrate";
 import { seedDb } from "@/lib/db/seed";
@@ -43,6 +44,17 @@ function migrationsWithRebuild(dir: string): string {
   return dir;
 }
 
+/** Copies the real migrations, keeping only those up to and including `tag`. */
+function migrationsUpTo(dir: string, tag: string): string {
+  cpSync(MIGRATIONS_DIR, dir, { recursive: true });
+  const journalPath = join(dir, "meta", "_journal.json");
+  const journal = JSON.parse(readFileSync(journalPath, "utf8"));
+  const end = journal.entries.findIndex((e: { tag: string }) => e.tag === tag);
+  journal.entries = journal.entries.slice(0, end + 1);
+  writeFileSync(journalPath, JSON.stringify(journal));
+  return dir;
+}
+
 describe("migrateDb", () => {
   let dir: string;
 
@@ -71,5 +83,24 @@ describe("migrateDb", () => {
     migrateDb(db);
 
     expect(db.$client.pragma("foreign_keys", { simple: true })).toBe(1);
+  });
+
+  it("upgrades a Phase 2 database, keeping its bookings as booked", () => {
+    const db = createDb(IN_MEMORY);
+    migrateDb(db, migrationsUpTo(dir, "0003_appointments"));
+    seedDb(db);
+    db.$client
+      .prepare(
+        "INSERT INTO appointments (reference, therapy_id, starts_at, agent_name, agent_email, created_at) SELECT 'AC-OLD001', id, '2026-11-02T09:00:00.000Z', 'Ada', 'ada@example.com', '2026-10-28T12:30:00.000Z' FROM therapies LIMIT 1",
+      )
+      .run();
+
+    migrateDb(db);
+
+    expect(getAppointmentByReference(db, "AC-OLD001")).toMatchObject({
+      agentName: "Ada",
+      status: "booked",
+      statusChangedAt: null,
+    });
   });
 });

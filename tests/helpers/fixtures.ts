@@ -52,6 +52,8 @@ export const APPOINTMENT: AppointmentWithTherapy = {
   agentName: "Ada",
   agentEmail: "ada@example.com",
   createdAt: "2026-10-28T12:30:00.000Z",
+  status: "booked",
+  statusChangedAt: null,
   therapy: THERAPIES[1],
 };
 

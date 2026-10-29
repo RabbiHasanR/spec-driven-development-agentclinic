@@ -25,6 +25,11 @@ export function bookingPath(reference: string): string {
   return `${BOOKINGS_PREFIX}/${encodeURIComponent(reference)}`;
 }
 
+/** URL of a booking's staff page, where its status is managed. */
+export function staffBookingPath(reference: string): string {
+  return `${ROUTES.dashboard}${BOOKINGS_PREFIX}/${encodeURIComponent(reference)}`;
+}
+
 /**
  * Whether a nav link to `href` is the current page or one of its children.
  *

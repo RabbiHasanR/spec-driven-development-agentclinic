@@ -1,8 +1,12 @@
-import { asc, eq } from "drizzle-orm";
+import { and, asc, eq, ne } from "drizzle-orm";
 import type { Db } from "./connection";
 import { generateReference as defaultGenerateReference } from "./reference";
 import { appointments, therapies, type NewAppointment } from "./schema";
-import type { AppointmentWithTherapy, Therapy } from "./types";
+import type {
+  AppointmentStatus,
+  AppointmentWithTherapy,
+  Therapy,
+} from "./types";
 
 /** The fields a caller supplies for a new booking; the rest are generated. */
 export type NewBooking = Pick<
@@ -34,12 +38,20 @@ export function isUniqueViolation(error: unknown, column: string): boolean {
   );
 }
 
-/** Start times already booked for a therapy, earliest first. */
+/**
+ * Start times a therapy is booked for, earliest first. Cancelled bookings
+ * don't hold their slot, so they're left out.
+ */
 export function listBookedSlots(db: Db, therapyId: number): string[] {
   return db
     .select({ startsAt: appointments.startsAt })
     .from(appointments)
-    .where(eq(appointments.therapyId, therapyId))
+    .where(
+      and(
+        eq(appointments.therapyId, therapyId),
+        ne(appointments.status, "cancelled"),
+      ),
+    )
     .orderBy(asc(appointments.startsAt))
     .all()
     .map(({ startsAt }) => startsAt);
@@ -116,4 +128,33 @@ export function listAppointments(db: Db): AppointmentWithTherapy[] {
     .orderBy(asc(appointments.startsAt))
     .all()
     .map((row) => ({ ...row.appointments, therapy: row.therapies }));
+}
+
+/**
+ * Moves a booking from one status to another, only if it still has the
+ * `from` status. Two staff acting on the same booking at once can't both
+ * succeed: the second finds the status already changed.
+ *
+ * @param db - Database to write to.
+ * @param reference - The booking's reference.
+ * @param from - The status the caller saw.
+ * @param to - The new status. Callers check the transition is allowed.
+ * @param now - Recorded as the change time.
+ * @returns Whether the booking was updated.
+ */
+export function updateAppointmentStatus(
+  db: Db,
+  reference: string,
+  from: AppointmentStatus,
+  to: AppointmentStatus,
+  now: Date,
+): boolean {
+  const { changes } = db
+    .update(appointments)
+    .set({ status: to, statusChangedAt: now.toISOString() })
+    .where(
+      and(eq(appointments.reference, reference), eq(appointments.status, from)),
+    )
+    .run();
+  return changes === 1;
 }

@@ -2,12 +2,18 @@
 
 import { refresh } from "next/cache";
 import { redirect, RedirectType } from "next/navigation";
-import { createAppointment } from "@/lib/db/appointments";
+import { requireStaff } from "@/lib/auth/staff";
+import {
+  createAppointment,
+  getAppointmentByReference,
+  updateAppointmentStatus,
+} from "@/lib/db/appointments";
 import { getDb } from "@/lib/db/client";
 import { getTherapyBySlug } from "@/lib/db/therapies";
-import { bookingPath } from "@/lib/routes";
+import { bookingPath, staffBookingPath } from "@/lib/routes";
 import { listOpenSlots } from "./availability";
-import type { BookingFormState } from "./form-state";
+import type { BookingFormState, StatusFormState } from "./form-state";
+import { allowedTransitions, parseStatusChange, STATUS_LABELS } from "./status";
 import {
   readBookingForm,
   SLOT_TAKEN_MESSAGE,
@@ -56,6 +62,44 @@ export async function bookAppointment(
   }
   // Replace, so Back from the confirmation doesn't reopen the filled-in form.
   redirect(bookingPath(result.appointment.reference), RedirectType.replace);
+}
+
+/**
+ * Changes a booking's status from its staff page, then reloads that page.
+ * Reachable by direct POST, so it checks the session, the submitted status,
+ * and that the change is still allowed for the booking as it is now.
+ *
+ * @param reference - Bound by the staff booking page.
+ * @param _state - Previous form state (unused; required by `useActionState`).
+ * @param formData - The submitted form; `status` is the new status.
+ * @returns A message when the change can't be made; otherwise it redirects.
+ */
+export async function changeBookingStatus(
+  reference: string,
+  _state: StatusFormState,
+  formData: FormData,
+): Promise<StatusFormState> {
+  await requireStaff();
+  const db = getDb();
+  const now = new Date();
+  const to = parseStatusChange(formData.get("status"));
+  const appointment = getAppointmentByReference(db, reference);
+  if (!appointment) return { message: "This booking no longer exists." };
+
+  if (
+    !to ||
+    !allowedTransitions(appointment, now).includes(to) ||
+    !updateAppointmentStatus(db, reference, appointment.status, to, now)
+  ) {
+    // Usually stale: another staff member or the clock moved it on.
+    refresh();
+    const current = getAppointmentByReference(db, reference)?.status;
+    return {
+      message: `That change isn't possible any more. This booking is ${STATUS_LABELS[current ?? appointment.status].toLowerCase()}.`,
+    };
+  }
+  // Replace, so Back doesn't return to the page before the change.
+  redirect(staffBookingPath(reference), RedirectType.replace);
 }
 
 /**
