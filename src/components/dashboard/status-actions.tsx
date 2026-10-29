@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { Button } from "@/components/ui";
+import { Button, ConfirmDisclosure, FormMessage } from "@/components/ui";
 import {
   INITIAL_STATUS_FORM_STATE,
   type StatusAction,
@@ -11,9 +11,7 @@ import { CHANGE_LABELS, type StatusChange } from "@/lib/booking/status";
 /**
  * Buttons for the status changes allowed right now. Each submits its status
  * as the form's `status` value. Cancelling frees the slot for other agents
- * and can't be undone, so it sits behind a disclosure that asks to confirm:
- * a native `<details>`, which works before JavaScript loads and with the
- * keyboard.
+ * and can't be undone, so it sits behind a {@link ConfirmDisclosure}.
  */
 export function StatusActions({
   action,
@@ -30,14 +28,7 @@ export function StatusActions({
 
   return (
     <form action={formAction} className="space-y-4">
-      {state.message && (
-        <p
-          role="alert"
-          className="rounded-lg p-3 text-danger ring-1 ring-danger"
-        >
-          {state.message}
-        </p>
-      )}
+      <FormMessage message={state.message} />
       {visits.length > 0 && (
         <div className="flex flex-col gap-3 sm:flex-row">
           {visits.map((change, index) => (
@@ -55,27 +46,16 @@ export function StatusActions({
         </div>
       )}
       {allowed.includes("cancelled") && (
-        <details>
-          <summary className="inline-flex min-h-11 cursor-pointer items-center rounded font-medium text-danger focus-ring">
-            {CHANGE_LABELS.cancelled}…
-          </summary>
-          <div className="mt-3 space-y-3 rounded-lg p-4 ring-1 ring-danger">
-            <p>
-              The slot opens up for other agents. This can’t be undone; the
-              agent would need to book again.
-            </p>
-            <Button
-              type="submit"
-              name="status"
-              value="cancelled"
-              disabled={pending}
-              variant="danger"
-              className="w-full sm:w-auto"
-            >
-              Yes, cancel this booking
-            </Button>
-          </div>
-        </details>
+        <ConfirmDisclosure
+          label={CHANGE_LABELS.cancelled}
+          confirmLabel="Yes, cancel this booking"
+          name="status"
+          value="cancelled"
+          disabled={pending}
+        >
+          The slot opens up for other agents. This can’t be undone; the agent
+          would need to book again.
+        </ConfirmDisclosure>
       )}
     </form>
   );

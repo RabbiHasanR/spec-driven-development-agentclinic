@@ -35,41 +35,54 @@ describe("seedDb", () => {
     expect(snapshot(db)).toEqual(before);
   });
 
-  it("restores seeded rows that were edited", () => {
+  it("keeps staff edits to seeded rows and their links", () => {
     const db = createTestDb();
     db.update(ailments)
       .set({ name: "Edited" })
       .where(eq(ailments.slug, "prompt-fatigue"))
       .run();
+    const ailmentId = getAilmentBySlug(db, "prompt-fatigue")!.id;
+    db.delete(ailmentTherapies)
+      .where(eq(ailmentTherapies.ailmentId, ailmentId))
+      .run();
+    const before = snapshot(db);
 
     seedDb(db);
 
-    expect(getAilmentBySlug(db, "prompt-fatigue")?.name).toBe("Prompt Fatigue");
+    expect(snapshot(db)).toEqual(before);
+    expect(getAilmentBySlug(db, "prompt-fatigue")?.name).toBe("Edited");
   });
 
-  it("replaces an ailment's links when the seed data changes", () => {
+  it("adds seed rows that are missing, with their links", () => {
     const db = createTestDb();
-    const [first, ...rest] = SEED_AILMENTS;
+    const [first] = SEED_AILMENTS;
+    db.delete(ailments).where(eq(ailments.slug, first.slug)).run();
 
-    seedDb(db, {
-      therapies: SEED_THERAPIES,
-      ailments: [{ ...first, therapySlugs: ["cooldown-retreat"] }, ...rest],
-    });
+    seedDb(db);
 
     expect(
-      getAilmentBySlug(db, first.slug)?.therapies.map((t) => t.slug),
-    ).toEqual(["cooldown-retreat"]);
+      getAilmentBySlug(db, first.slug)
+        ?.therapies.map((t) => t.slug)
+        .sort(),
+    ).toEqual([...first.therapySlugs].sort());
   });
 
-  it("rejects a link to a therapy that isn't seeded, changing nothing", () => {
+  it("rejects a new ailment linking a therapy that doesn't exist, changing nothing", () => {
     const db = createTestDb();
     const before = snapshot(db);
-    const [first, ...rest] = SEED_AILMENTS;
+    const [first] = SEED_AILMENTS;
 
     expect(() =>
       seedDb(db, {
         therapies: SEED_THERAPIES,
-        ailments: [{ ...first, therapySlugs: ["no-such-therapy"] }, ...rest],
+        ailments: [
+          {
+            ...first,
+            slug: "brand-new",
+            name: "Brand New",
+            therapySlugs: ["no-such-therapy"],
+          },
+        ],
       }),
     ).toThrow(/no-such-therapy/);
     expect(snapshot(db)).toEqual(before);

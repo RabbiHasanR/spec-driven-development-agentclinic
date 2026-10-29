@@ -4,7 +4,6 @@ import { beforeEach, describe, expect, it } from "vitest";
 import {
   createAppointment,
   getAppointmentByReference,
-  isUniqueViolation,
   listAppointments,
   listBookedSlots,
   updateAppointmentStatus,
@@ -106,20 +105,6 @@ describe("appointment queries", () => {
       SLOT,
       "2026-11-03T09:00:00.000Z",
     ]);
-  });
-
-  it("recognizes a unique violation wrapped by Drizzle", () => {
-    const sqliteError = Object.assign(
-      new Error("UNIQUE constraint failed: appointments.reference"),
-      { code: "SQLITE_CONSTRAINT_UNIQUE" },
-    );
-    const wrapped = new Error("Failed query: insert …", { cause: sqliteError });
-
-    expect(isUniqueViolation(wrapped, "appointments.reference")).toBe(true);
-    expect(isUniqueViolation(wrapped, "appointments.starts_at")).toBe(false);
-    expect(
-      isUniqueViolation(new Error("other"), "appointments.reference"),
-    ).toBe(false);
   });
 
   it("finds a booking by reference with its therapy", () => {

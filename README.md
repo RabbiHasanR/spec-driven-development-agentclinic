@@ -54,7 +54,7 @@ The dashboard has no login in v1.
 | `npm run test:watch`   | Run Vitest in watch mode                      |
 | `npm run db:generate`  | Generate a SQL migration from the schema      |
 | `npm run db:migrate`   | Apply pending migrations to the database      |
-| `npm run db:seed`      | Upsert the catalog seed data (idempotent)     |
+| `npm run db:seed`      | Add missing seed data; keeps staff edits      |
 
 ## Project layout
 

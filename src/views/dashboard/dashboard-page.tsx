@@ -1,6 +1,7 @@
 import { BookingsTable, OverviewStats } from "@/components/dashboard";
-import { PageHeader, Section } from "@/components/ui";
+import { ArrowLink, PageHeader, Section } from "@/components/ui";
 import type { Schedule, ScheduleOverview } from "@/lib/booking/overview";
+import { ROUTES } from "@/lib/routes";
 
 /** Staff dashboard: headline numbers, then upcoming and past bookings. */
 export function DashboardPage({
@@ -31,6 +32,9 @@ export function DashboardPage({
         title="Dashboard"
         lead="Every booking at a glance, next appointment first."
       />
+      <ArrowLink href={ROUTES.catalog} className="mt-4">
+        Manage ailments and therapies
+      </ArrowLink>
       <section aria-label="Overview" className="mt-8">
         <OverviewStats overview={overview} />
       </section>

@@ -9,21 +9,34 @@ import {
   uniqueIndex,
 } from "drizzle-orm/sqlite-core";
 
-export const ailments = sqliteTable("ailments", {
-  id: integer("id").primaryKey(),
-  slug: text("slug").notNull().unique(),
-  name: text("name").notNull(),
-  summary: text("summary").notNull(),
-  description: text("description").notNull(),
-});
+export const ailments = sqliteTable(
+  "ailments",
+  {
+    id: integer("id").primaryKey(),
+    slug: text("slug").notNull().unique(),
+    name: text("name").notNull(),
+    summary: text("summary").notNull(),
+    description: text("description").notNull(),
+  },
+  // Names are unique ignoring case, so staff can't add a look-alike entry.
+  (table) => [
+    uniqueIndex("ailments_name_unique").on(sql`lower(${table.name})`),
+  ],
+);
 
-export const therapies = sqliteTable("therapies", {
-  id: integer("id").primaryKey(),
-  slug: text("slug").notNull().unique(),
-  name: text("name").notNull(),
-  summary: text("summary").notNull(),
-  durationMinutes: integer("duration_minutes").notNull(),
-});
+export const therapies = sqliteTable(
+  "therapies",
+  {
+    id: integer("id").primaryKey(),
+    slug: text("slug").notNull().unique(),
+    name: text("name").notNull(),
+    summary: text("summary").notNull(),
+    durationMinutes: integer("duration_minutes").notNull(),
+  },
+  (table) => [
+    uniqueIndex("therapies_name_unique").on(sql`lower(${table.name})`),
+  ],
+);
 
 /** Many-to-many link: which therapies treat which ailments. */
 export const ailmentTherapies = sqliteTable(

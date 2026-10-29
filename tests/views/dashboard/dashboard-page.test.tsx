@@ -39,4 +39,17 @@ describe("Dashboard page", () => {
     expect(screen.getByText("No past bookings.")).toBeInTheDocument();
     expect(screen.queryByRole("table")).not.toBeInTheDocument();
   });
+
+  it("links to the catalog, where staff manage ailments and therapies", () => {
+    render(
+      <DashboardPage
+        schedule={{ upcoming: [], past: [] }}
+        overview={OVERVIEW}
+      />,
+    );
+
+    expect(
+      screen.getByRole("link", { name: /Manage ailments and therapies/ }),
+    ).toHaveAttribute("href", "/dashboard/catalog");
+  });
 });

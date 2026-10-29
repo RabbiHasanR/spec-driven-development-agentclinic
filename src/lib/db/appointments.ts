@@ -1,5 +1,6 @@
 import { and, asc, eq, ne } from "drizzle-orm";
 import type { Db } from "./connection";
+import { isUniqueViolation } from "./errors";
 import { generateReference as defaultGenerateReference } from "./reference";
 import { appointments, therapies, type NewAppointment } from "./schema";
 import type {
@@ -20,23 +21,6 @@ const MAX_REFERENCE_ATTEMPTS = 5;
 export type CreateAppointmentResult =
   | { ok: true; appointment: AppointmentWithTherapy }
   | { ok: false; reason: "slot-taken" };
-
-/**
- * Whether `error` is SQLite rejecting a duplicate in `table.column`.
- *
- * The message names every column of the violated index, e.g.
- * "UNIQUE constraint failed: appointments.therapy_id, appointments.starts_at".
- * Drizzle throws the driver's error as-is here, but some of its sessions wrap
- * it in a `DrizzleQueryError` with the original as `cause`; both are handled.
- */
-export function isUniqueViolation(error: unknown, column: string): boolean {
-  const cause = error instanceof Error && error.cause ? error.cause : error;
-  return (
-    cause instanceof Error &&
-    (cause as { code?: string }).code === "SQLITE_CONSTRAINT_UNIQUE" &&
-    cause.message.includes(column)
-  );
-}
 
 /**
  * Start times a therapy is booked for, earliest first. Cancelled bookings

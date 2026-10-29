@@ -1,5 +1,5 @@
 import type { ComponentProps } from "react";
-import { FieldError, fieldErrorId } from "./field-error";
+import { CONTROL_CLASS, controlProps, Field } from "./field";
 
 /**
  * A labelled, full-width text input with an optional error message, wired up
@@ -8,27 +8,20 @@ import { FieldError, fieldErrorId } from "./field-error";
 export function TextField({
   name,
   label,
+  hint,
   error,
   ...inputProps
-}: { name: string; label: string; error?: string } & Omit<
+}: { name: string; label: string; hint?: string; error?: string } & Omit<
   ComponentProps<"input">,
   "name" | "id"
 >) {
-  const id = `field-${name}`;
   return (
-    <div>
-      <label htmlFor={id} className="block font-medium">
-        {label}
-      </label>
+    <Field name={name} label={label} hint={hint} error={error}>
       <input
-        id={id}
-        name={name}
-        aria-invalid={error ? true : undefined}
-        aria-describedby={error ? fieldErrorId(name) : undefined}
-        className="mt-1 block min-h-11 w-full rounded-lg bg-surface px-3 text-base ring-1 ring-control focus-ring aria-invalid:ring-2 aria-invalid:ring-danger"
+        {...controlProps(name, error)}
+        className={`${CONTROL_CLASS} min-h-11`}
         {...inputProps}
       />
-      <FieldError name={name} error={error} />
-    </div>
+    </Field>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useRef } from "react";
-import { Button, TextField } from "@/components/ui";
+import { Button, FormMessage, TextField } from "@/components/ui";
 import {
   INITIAL_SIGN_IN_FORM_STATE,
   type SignInAction,
@@ -32,14 +32,7 @@ export function LoginForm({
 
   return (
     <form action={formAction} className="space-y-6">
-      {state.message && (
-        <p
-          role="alert"
-          className="rounded-lg p-3 text-danger ring-1 ring-danger"
-        >
-          {state.message}
-        </p>
-      )}
+      <FormMessage message={state.message} />
       {next && <input type="hidden" name="next" value={next} />}
       <TextField
         ref={passwordRef}
